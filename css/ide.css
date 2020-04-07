@@ -6,7 +6,6 @@ html, body {
 }
 
 body {
-    background: url(/images/judge0_background.png) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -77,6 +76,17 @@ body {
 #site-icon {
     width: 30px;
     height: 30px;
+    vertical-align: middle;
+}
+
+#hbut-icon {
+    width: 40px;
+    height: 40px;
+    vertical-align: middle;
+}
+
+#hbut-text-icon {
+    height: 28px;
     vertical-align: middle;
 }
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -10,11 +10,9 @@
             programming online, snippet, snippets, code snippet, code snippets, pastebin, execute code, programming in browser, run c online, run C++ online,
             run java online, run python online, run ruby online, run c# online, run rust online, run pascal online, run basic online">
     <meta name="author" content="Herman Zvonimir Došilović">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta property="og:title" content="Judge0 IDE - Free and open-source online code editor">
-    <meta property="og:description" content="Free and open-source online code editor that allows you to write and execute code from a rich set of languages.">
+    <meta property="og:title" content="HBUT ONLINE CODING TRAINER">
+    <meta property="og:description" content="Powered by Judge0 IDE, Free and open-source online code editor that allows you to write and execute code from a rich set of languages.">
     <meta property="og:image" content="https://raw.githubusercontent.com/judge0/ide/master/.github/wallpaper.png">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -47,25 +45,52 @@
 
     <link type="text/css" rel="stylesheet" href="css/ide.css">
 
-    <title>Judge0 IDE - Free and open-source online code editor</title>
+    <title>湖北工业大学在线代码训练器</title>
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
 </head>
 
 <body>
     <div id="site-navigation" class="ui small inverted menu">
+
         <div id="site-header" class="header item">
             <a href="/">
                 <img id="site-icon" src="./images/judge0_icon.png">
-                <h2>Judge0 IDE</h2>
+                <h2> Judge0 IDE </h2>
+                <!-- TODO ADD HBUT LOGO -->
+                <h2> + </h2>
+                <img id="hbut-icon" src="./images/hbut_icon.png">
+                <h2>&nbsp;</h2>
+                <img id="hbut-text-icon" src="./images/hbut_text_icon.png">
+                <!-- END -->
             </a>
         </div>
         <div class="left menu">
+
+            <!-- TODO ADD LOGIN BUTTON ON MENU -->
+            <div id="menu-login-btn-panel" class="item no-left-padding borderless">
+                <button id="menu-login-btn" class="ui primary labeled icon button">
+                    <i class="sign-in icon"></i>
+                    LOGIN
+                </button>
+            </div>
+            <!-- END -->
+
+            <!-- TODO ADD PROGRAM SELECT DROPDOWN LIST -->
+            <div id="select-program-panel" class="item borderless">
+                <select id="select-program" class="ui dropdown">
+                    <option value="0-0-0" selected>《算法分析与设计》</option>
+                    <option value="1-1-0">1，快速排序</option>
+                    <option value="1-1-1">2，二叉树</option>
+                </select>
+            </div>
+            <!-- END -->
+
             <div class="ui dropdown item site-links on-hover">
                 File <i class="dropdown icon"></i>
                 <div class="menu">
-                    <a class="item" target="_blank" href="/"><i class="file code icon"></i> New File</a>
-                    <div class="item" onclick="save()"><i class="save icon"></i> Save (Ctrl + S)</div>
+<!--                    <a class="item" target="_blank" href="/"><i class="file code icon"></i> New File</a>-->
+<!--                    <div class="item" onclick="save()"><i class="save icon"></i> Save (Ctrl + S)</div>-->
                     <div class="item" onclick="downloadSource()"><i class="download icon"></i> Download</div>
                     <!-- <div class="item"><i class="share icon"></i> Share</div> -->
                     <div id="insert-template-btn" class="item"><i class="file code outline icon"></i> Insert template
@@ -113,22 +138,37 @@
             </div>
             <div class="item fitted borderless">
                 <div class="ui input">
-                    <input id="compiler-options" type="text" placeholder="Compiler options"></input>
+                    <input id="compiler-options" type="text" placeholder="Compiler options" />
                 </div>
             </div>
             <div class="item borderless">
                 <div class="ui input">
-                    <input id="command-line-arguments" type="text" placeholder="Command line arguments"></input>
+                    <input id="command-line-arguments" type="text" placeholder="Command line arguments" />
                 </div>
             </div>
+
+            <!-- TODO ADD SUBMIT BUTTON PANEL -->
+            <div id="submit-btn-panel" class="item no-left-padding borderless">
+                <button id="submit-btn" class="ui primary labeled icon button"><i class="upload icon"></i>Submit</button>
+            </div>
+            <!-- END -->
+
             <div class="item no-left-padding borderless">
                 <button id="run-btn" class="ui primary labeled icon button"><i class="play icon"></i>Run (F9)</button>
             </div>
-            <div id="navigation-message" class="item borderless">
+
+            <!-- TODO ADD STATUS TEXT -->
+            <div class="item no-left-padding borderless">
+                <a id="submit-status" class="ui green label">Status.</a>
+            </div>
+            <!-- END -->
+
+            <div id="navigation-message" class="item borderless" style="display: none">
                 <span class="navigation-message-text"></span>
             </div>
         </div>
-        <div class="right menu">
+
+        <div class="right menu" style="display: none">
             <a id="about" class="link item" target="_blank" href="https://judge0.com/about"><i class="info circle icon"></i> About</a>
             <a id="api-url" class="link item" target="_blank" href="https://api.judge0.com"><i class="server icon"></i> API</a>
             <div class="ui dropdown item site-links">
@@ -179,6 +219,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 
     <div id="site-content"></div>
@@ -194,6 +235,36 @@
                 <i class="remove icon"></i>
                 Close (ESC)
             </div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="ui modal">
+        <div class="header" align="center">
+            <img src="./images/hbut_icon.png" height="100" />
+        </div>
+        <div class="scrolling content" align="center">
+            <div class="ui labeled input">
+                <div class="ui label">
+                    Username
+                </div>
+                <input id="username" type="text" placeholder="username" />
+            </div>
+            <div class="ui labeled input">
+                <div class="ui label">
+                    Password
+                </div>
+                <input id="password" type="text" placeholder="password" />
+            </div>
+        </div>
+        <div class="actions">
+            <button id="login-btn" class="ui labeled icon primary button">
+                <i class="sign-in icon"></i>
+                LOGIN
+            </button>
+            <button id="cancel-btn" class="ui labeled icon button">
+                <i class="remove icon"></i>
+                CANCEL
+            </button>
         </div>
     </div>
 

@@ -1,45 +1,63 @@
-var defaultUrl = localStorageGetItem("api-url") || "https://api.judge0.com";
-var apiUrl = defaultUrl;
-var wait = localStorageGetItem("wait") || false;
-var pbUrl = "https://pb.judge0.com";
-var check_timeout = 200;
+// TODO CHANGE AND ADD JUDGE0 API AND ADDITIONAL CUSTOM SERVICE TO LOCAL
+// var defaultUrl = localStorageGetItem("api-url") || "https://api.judge0.com";
+let defaultUrl = localStorageGetItem("api-url") || "http://10.0.0.3:3000";
+let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://10.0.0.3:5000";
+// END
 
-var blinkStatusLine = ((localStorageGetItem("blink") || "true") === "true");
-var editorMode = localStorageGetItem("editorMode") || "normal";
-var editorModeObject = null;
+let apiUrl = defaultUrl;
+let wait = localStorageGetItem("wait") || false;
+const pbUrl = "https://pb.judge0.com";
+const check_timeout = 200;
 
-var fontSize = 14;
+let blinkStatusLine = ((localStorageGetItem("blink") || "true") === "true");
+let editorMode = localStorageGetItem("editorMode") || "normal";
+let editorModeObject = null;
 
-var MonacoVim;
-var MonacoEmacs;
+let fontSize = 14;
 
-var layout;
+let MonacoVim;
+let MonacoEmacs;
 
-var sourceEditor;
-var stdinEditor;
-var stdoutEditor;
-var stderrEditor;
-var compileOutputEditor;
-var sandboxMessageEditor;
+let layout;
 
-var isEditorDirty = false;
-var currentLanguageId;
+let sourceEditor;
+let stdinEditor;
+let stdoutEditor;
+let stderrEditor;
+let compileOutputEditor;
+let sandboxMessageEditor;
 
-var $selectLanguage;
-var $compilerOptions;
-var $commandLineArguments;
-var $insertTemplateBtn;
-var $runBtn;
-var $navigationMessage;
-var $about;
-var $statusLine;
+let isEditorDirty = false;
+let currentLanguageId;
 
-var timeStart;
-var timeEnd;
+let $selectLanguage;
+let $compilerOptions;
+let $commandLineArguments;
+let $insertTemplateBtn;
+let $runBtn;
 
-var messagesData;
+// TODO DEFINE SOME VARIABLES FOR CUSTOM
+let $selectProgram;
+let $submitBtn;
+let $loginBtn;
+let $menuLoginBtn;
+let $cancelBtn;
+let $username;
+let $password;
+let $userProfile;
+let $program;
+// END
 
-var layoutConfig = {
+let $navigationMessage;
+let $about;
+let $statusLine;
+
+let timeStart;
+let timeEnd;
+
+let messagesData;
+
+let layoutConfig = {
     settings: {
         showPopoutIcon: false,
         reorderEnabled: true
@@ -111,12 +129,44 @@ var layoutConfig = {
     }]
 };
 
+// TODO DO LOGIN
+function doLogin() {
+
+    $username = $("#username");
+    $password = $("#password");
+
+    $.ajax({
+        url: dataindustryUrl + `/user/` + $username.val() + `/` + $password.val(),
+        type: "GET",
+        headers: {
+            "Accept": "application/json"
+        },
+        dataType: 'json',
+        error: function (jqXHR) {
+            alert(jqXHR.responseText);
+            alert(jqXHR.status);
+            },
+        success : function(data) {
+
+            $userProfile = $.parseJSON(data);
+            localStorageSetItem("user-profile", $userProfile);
+
+            $("#menu-login-btn-panel").hide();
+            $("#select-program-panel").show();
+
+            hideLoginModal();
+
+        }
+    });
+}
+// END
+
 function encode(str) {
     return btoa(unescape(encodeURIComponent(str || "")));
 }
 
 function decode(bytes) {
-    var escaped = escape(atob(bytes || ""));
+    let escaped = escape(atob(bytes || ""));
     try {
         return decodeURIComponent(escaped);
     } catch {
@@ -140,22 +190,22 @@ function localStorageGetItem(key) {
 }
 
 function showMessages() {
-    var width = $about.offset().left - parseFloat($about.css("padding-left")) -
+    let width = $about.offset().left - parseFloat($about.css("padding-left")) -
                 $navigationMessage.parent().offset().left - parseFloat($navigationMessage.parent().css("padding-left")) - 5;
 
     if (width < 200 || messagesData === undefined) {
         return;
     }
 
-    var messages = messagesData["messages"];
+    let messages = messagesData["messages"];
 
     $navigationMessage.css("animation-duration", messagesData["duration"]);
     $navigationMessage.parent().width(width - 5);
 
-    var combinedMessage = "";
-    for (var i = 0; i < messages.length; ++i) {
+    let combinedMessage = "";
+    for (let i = 0; i < messages.length; ++i) {
         combinedMessage += `${messages[i]}`;
-        if (i != messages.length - 1) {
+        if (i !== messages.length - 1) {
             combinedMessage += "&nbsp".repeat(Math.min(200, messages[i].length));
         }
     }
@@ -170,7 +220,7 @@ function loadMessages() {
         headers: {
             "Accept": "application/json"
         },
-        success: function (data, textStatus, jqXHR) {
+        success: function (data) {
             messagesData = data;
             showMessages();
         }
@@ -186,6 +236,18 @@ function showError(title, content) {
     $("#site-modal .content").html(content);
     $("#site-modal").modal("show");
 }
+
+// TODO SHOW LOGIN MODAL WINDOW
+function showLoginModal(){
+    $("#login-modal").modal("show");
+}
+// END
+
+// TODO HIDE LOGIN MODAL WINDOW
+function hideLoginModal(){
+    $("#login-modal").modal("hide");
+}
+// END
 
 function handleError(jqXHR, textStatus, errorThrown) {
     showError(`${jqXHR.statusText} (${jqXHR.status})`, `<pre>${JSON.stringify(jqXHR, null, 4)}</pre>`);
@@ -225,25 +287,25 @@ function handleResult(data) {
     sandboxMessageEditor.setValue(sandbox_message);
 
     if (stdout !== "") {
-        var dot = document.getElementById("stdout-dot");
+        let dot = document.getElementById("stdout-dot");
         if (!dot.parentElement.classList.contains("lm_active")) {
             dot.hidden = false;
         }
     }
     if (stderr !== "") {
-        var dot = document.getElementById("stderr-dot");
+        let dot = document.getElementById("stderr-dot");
         if (!dot.parentElement.classList.contains("lm_active")) {
             dot.hidden = false;
         }
     }
     if (compile_output !== "") {
-        var dot = document.getElementById("compile-output-dot");
+        let dot = document.getElementById("compile-output-dot");
         if (!dot.parentElement.classList.contains("lm_active")) {
             dot.hidden = false;
         }
     }
     if (sandbox_message !== "") {
-        var dot = document.getElementById("sandbox-message-dot");
+        let dot = document.getElementById("sandbox-message-dot");
         if (!dot.parentElement.classList.contains("lm_active")) {
             dot.hidden = false;
         }
@@ -257,7 +319,7 @@ function getIdFromURI() {
 }
 
 function save() {
-    var content = JSON.stringify({
+    let content = JSON.stringify({
         source_code: encode(sourceEditor.getValue()),
         language_id: $selectLanguage.val(),
         compiler_options: $compilerOptions.val(),
@@ -269,8 +331,8 @@ function save() {
         sandbox_message: encode(sandboxMessageEditor.getValue()),
         status_line: encode($statusLine.html())
     });
-    var filename = "judge0-ide.json";
-    var data = {
+    let filename = "judge0-ide.json";
+    let data = {
         content: content,
         filename: filename
     };
@@ -284,7 +346,7 @@ function save() {
         },
         data: data,
         success: function (data, textStatus, jqXHR) {
-            if (getIdFromURI() != data["short"]) {
+            if (getIdFromURI() !== data["short"]) {
                 window.history.replaceState(null, null, location.origin + location.pathname + "?" + data["short"]);
             }
         },
@@ -295,14 +357,14 @@ function save() {
 }
 
 function downloadSource() {
-    var value = parseInt($selectLanguage.val());
+    let value = parseInt($selectLanguage.val());
     download(sourceEditor.getValue(), fileNames[value], "text/plain");
 }
 
 function loadSavedSource() {
-    snippet_id = getIdFromURI();
+    let snippet_id = getIdFromURI();
 
-    if (snippet_id.length == 36) {
+    if (snippet_id.length === 36) {
         $.ajax({
             url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
             type: "GET",
@@ -316,14 +378,14 @@ function loadSavedSource() {
                 stderrEditor.setValue(decode(data["stderr"]));
                 compileOutputEditor.setValue(decode(data["compile_output"]));
                 sandboxMessageEditor.setValue(decode(data["message"]));
-                var time = (data.time === null ? "-" : data.time + "s");
-                var memory = (data.memory === null ? "-" : data.memory + "KB");
+                let time = (data.time === null ? "-" : data.time + "s");
+                let memory = (data.memory === null ? "-" : data.memory + "KB");
                 $statusLine.html(`${data.status.description}, ${time}, ${memory}`);
                 changeEditorLanguage();
             },
             error: handleRunError
         });
-    } else if (snippet_id.length == 4) {
+    } else if (snippet_id.length === 4) {
         $.ajax({
             url: pbUrl + "/" + snippet_id + ".json",
             type: "GET",
@@ -349,7 +411,31 @@ function loadSavedSource() {
     }
 }
 
+// TODO PACKAGE INTERFACE DATA TO MAP
+function package_interface_data(){
+
+    if (parseInt($program.language_id) === 44) {
+        $program.source_code = sourceEditor.getValue();
+    }else{
+        $program.source_code = encode(sourceEditor.getValue());
+    }
+    $program.stdin = encode(stdinEditor.getValue());
+    $program.language_id = resolveLanguageId($selectLanguage.val());
+    $program.compiler_options = $compilerOptions.val();
+    $program.command_line_arguments = $commandLineArguments.val();
+
+    return {
+        source_code: $program.source_code,
+        language_id: $program.language_id,
+        stdin: $program.stdin,
+        compiler_options: $program.compiler_options,
+        command_line_arguments: $program.command_line_arguments
+    };
+}
+// END
+
 function run() {
+
     if (sourceEditor.getValue().trim() === "") {
         showError("Error", "Source code can't be empty!");
         return;
@@ -367,23 +453,10 @@ function run() {
     compileOutputEditor.setValue("");
     sandboxMessageEditor.setValue("");
 
-    var sourceValue = encode(sourceEditor.getValue());
-    var stdinValue = encode(stdinEditor.getValue());
-    var languageId = resolveLanguageId($selectLanguage.val());
-    var compilerOptions = $compilerOptions.val();
-    var commandLineArguments = $commandLineArguments.val();
-
-    if (parseInt(languageId) === 44) {
-        sourceValue = sourceEditor.getValue();
-    }
-
-    var data = {
-        source_code: sourceValue,
-        language_id: languageId,
-        stdin: stdinValue,
-        compiler_options: compilerOptions,
-        command_line_arguments: commandLineArguments
-    };
+    // TODO SUBMIT PROGRAM BEFORE RUN
+    let data = package_interface_data();
+    submitProgram();
+    // END
 
     timeStart = performance.now();
     $.ajax({
@@ -394,7 +467,7 @@ function run() {
         data: JSON.stringify(data),
         success: function (data, textStatus, jqXHR) {
             console.log(`Your submission token is: ${data.token}`);
-            if (wait == true) {
+            if (wait === true) {
                 handleResult(data);
             } else {
                 setTimeout(fetchSubmission.bind(null, data.token), check_timeout);
@@ -403,6 +476,98 @@ function run() {
         error: handleRunError
     });
 }
+
+// TODO SUBMIT PROGRAM
+function submitProgram(){
+
+    let data = package_interface_data();
+
+    $selectProgram = $("#select-program");
+    data.user_profile_oid = $userProfile._id.$oid;
+    data.item_program_no = $selectProgram.find(":selected")[0].value;
+
+    $.ajax({
+        url: dataindustryUrl + `/program`,
+        type: "POST",
+        async: true,
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: function (data, textStatus, jqXHR) {
+            let submit_status = "Submitted. " + new Date().Format("yyyy-MM-dd HH:mm:ss");
+            $("#submit-status").html(submit_status)
+        },
+        error: handleRunError
+    });
+
+}
+
+Date.prototype.Format = function (fmt) {
+    let o = {
+        "M+": this.getMonth() + 1,
+        "d+": this.getDate(),
+        "H+": this.getHours(),
+        "m+": this.getMinutes(),
+        "s+": this.getSeconds(),
+        "q+": Math.floor((this.getMonth() + 3) / 3),
+        "S": this.getMilliseconds()
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (let k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt =
+        fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+};
+
+// TODO APPLY PROGRAM
+function applyProgram() {
+
+    stdoutEditor.setValue("");
+    stderrEditor.setValue("");
+    compileOutputEditor.setValue("");
+    sandboxMessageEditor.setValue("");
+
+    if(decode($program.source_code).trim() === "" ||
+        parseInt($selectLanguage.val()) !== $program.language_id){
+        insertTemplate();
+    }else {
+        sourceEditor.setValue(decode($program.source_code));
+    }
+
+    $selectLanguage.dropdown("set selected", $program.language_id);
+    $compilerOptions.val($program.compiler_options);
+    $commandLineArguments.val($program.command_line_arguments);
+    stdinEditor.setValue(decode($program.stdin));
+
+    changeEditorLanguage();
+}
+
+// TODO LOAD
+function loadProgram(){
+
+    let user_profile_oid = $userProfile._id.$oid;
+    let item_program_no = $selectProgram.find(":selected")[0].value;
+
+    $.ajax({
+        url: dataindustryUrl + `/program/` + user_profile_oid + `/` + item_program_no,
+        type: "GET",
+        headers: {
+            "Accept": "application/json"
+        },
+        dataType: 'json',
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert(jqXHR.responseText);
+            alert(jqXHR.status);
+            },
+        success : function(data) {
+            $program = $.parseJSON(data);
+            localStorageGetItem("program", $program);
+            applyProgram();
+        }
+    });
+
+
+}
+// END
 
 function fetchSubmission(submission_token) {
     $.ajax({
@@ -435,8 +600,8 @@ function insertTemplate() {
 }
 
 function loadRandomLanguage() {
-    var values = [];
-    for (var i = 0; i < $selectLanguage[0].options.length; ++i) {
+    let values = [];
+    for (let i = 0; i < $selectLanguage[0].options.length; ++i) {
         values.push($selectLanguage[0].options[i].value);
     }
     $selectLanguage.dropdown("set selected", values[Math.floor(Math.random() * $selectLanguage[0].length)]);
@@ -446,7 +611,7 @@ function loadRandomLanguage() {
 }
 
 function resizeEditor(layoutInfo) {
-    if (editorMode != "normal") {
+    if (editorMode !== "normal") {
         var statusLineHeight = $("#editor-status-line").height();
         layoutInfo.height -= statusLineHeight;
         layoutInfo.contentHeight -= statusLineHeight;
@@ -464,10 +629,10 @@ function disposeEditorModeObject() {
 function changeEditorMode() {
     disposeEditorModeObject();
 
-    if (editorMode == "vim") {
+    if (editorMode === "vim") {
         editorModeObject = MonacoVim.initVimMode(sourceEditor, $("#editor-status-line")[0]);
-    } else if (editorMode == "emacs") {
-        var statusNode = $("#editor-status-line")[0];
+    } else if (editorMode === "emacs") {
+        let statusNode = $("#editor-status-line")[0];
         editorModeObject = new MonacoEmacs.EmacsExtension(sourceEditor);
         editorModeObject.onDidMarkChange(function(e) {
           statusNode.textContent = e ? "Mark Set!" : "Mark Unset";
@@ -504,16 +669,8 @@ $(window).resize(function() {
 });
 
 $(document).ready(function () {
-    console.log("Hey, Judge0 IDE is open-sourced: https://github.com/judge0/ide. Have fun!");
 
-    $selectLanguage = $("#select-language");
-    $selectLanguage.change(function (e) {
-        if (!isEditorDirty) {
-            insertTemplate();
-        } else {
-            changeEditorLanguage();
-        }
-    });
+    console.log("Hey, Judge0 IDE is open-sourced: https://github.com/judge0/ide. Have fun!");
 
     $compilerOptions = $("#compiler-options");
     $commandLineArguments = $("#command-line-arguments");
@@ -530,6 +687,57 @@ $(document).ready(function () {
     $runBtn.click(function (e) {
         run();
     });
+
+    // TODO EVENT BINDING
+    $submitBtn = $("#submit-btn");
+    $submitBtn.click(function (e) {
+
+        submitProgram();
+
+        let i = 5;
+        const time = setInterval(function(){
+            if(i === 0){
+                $submitBtn.removeClass("loading");
+                clearInterval(time);
+            }else if(i === 5){
+                $submitBtn.addClass("loading");
+            }
+            i--;
+        }, 1000);
+    });
+
+    $loginBtn = $("#login-btn");
+    $loginBtn.click(function (e) {
+        doLogin();
+    });
+
+    $menuLoginBtn = $("#menu-login-btn");
+    $menuLoginBtn.click(function (e) {
+        showLoginModal();
+    });
+
+    $cancelBtn = $("#cancel-btn");
+    $cancelBtn.click(function (e) {
+        hideLoginModal();
+    });
+
+    $selectProgram = $("#select-program");
+    $selectProgram.change(function (e){
+        loadProgram();
+    });
+
+    $selectLanguage = $("#select-language");
+    $selectLanguage.change(function (e) {
+
+        if(decode($program.source_code).trim() === "" ||
+            parseInt($selectLanguage.val()) !== $program.language_id){
+            insertTemplate();
+        }else {
+            sourceEditor.setValue(decode($program.source_code));
+            changeEditorLanguage();
+        }
+    });
+    // END
 
     $navigationMessage = $("#navigation-message span");
     $about = $("#about");
@@ -730,6 +938,12 @@ $(document).ready(function () {
 
         layout.init();
     });
+
+    // TODO RYU ADD START
+    $("#select-program-panel").hide();
+    showLoginModal();
+    // RYU ADD END
+
 });
 
 // Template Sources

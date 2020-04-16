@@ -1,7 +1,7 @@
 // TODO CHANGE AND ADD JUDGE0 API AND ADDITIONAL CUSTOM SERVICE TO LOCAL
 // var defaultUrl = localStorageGetItem("api-url") || "https://api.judge0.com";
 let defaultUrl = localStorageGetItem("api-url") || "http://10.0.0.3:3000";
-let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://10.0.0.3:5000";
+let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://10.0.0.3:4321";
 // END
 
 let apiUrl = defaultUrl;
@@ -40,12 +40,16 @@ let $runBtn;
 let $selectProgram;
 let $submitBtn;
 let $loginBtn;
+let $registerBtn;
 let $menuLoginBtn;
 let $cancelBtn;
 let $username;
 let $password;
 let $userProfile;
 let $program;
+let $programs;
+let $selectedProgramNo;
+let $programMenu;
 // END
 
 let $navigationMessage;
@@ -135,8 +139,16 @@ function doLogin() {
     $username = $("#username");
     $password = $("#password");
 
+    $selectedProgramNo = $("#selected-program-no");
+    $programMenu = $("#program-menu");
+
+    if($username.val().trim() === "" || $password.val().trim() === ""){
+        alert("username and password can not be empty.");
+        return;
+    }
+
     $.ajax({
-        url: dataindustryUrl + `/user/` + $username.val() + `/` + $password.val(),
+        url: dataindustryUrl + `/user/` + encode($username.val()) + `/` + encode($password.val()),
         type: "GET",
         headers: {
             "Accept": "application/json"
@@ -151,11 +163,98 @@ function doLogin() {
             $userProfile = $.parseJSON(data);
             localStorageSetItem("user-profile", $userProfile);
 
+            $("#username-label")[0].innerText = decode($userProfile.username);
+
+            makeProgramMenu();
+
             $("#menu-login-btn-panel").hide();
-            $("#select-program-panel").show();
+            $("#username-label-panel").show();
+            $("#program-menu-panel").show();
 
             hideLoginModal();
 
+        }
+    });
+}
+
+// 生成程序单
+function makeProgramMenu() {
+    $.ajax({
+        url: dataindustryUrl + `/programs/` + $userProfile._id.$oid,
+        type: "GET",
+        headers: {
+            "Accept": "application/json"
+        },
+        dataType: 'json',
+        error: function (jqXHR) {
+            alert(jqXHR.responseText);
+            alert(jqXHR.status);
+        },
+        success: function (data) {
+
+            $programs = $.parseJSON(data);
+            makeProgramMenuItem();
+
+        }
+    });
+}
+
+// 生成程序单选项
+function makeProgramMenuItem() {
+
+    // TODO 清除以前添加的选项，解除以前绑定的事件
+
+    $.each($programs, function (index, value) {
+
+        let item =
+            $(
+                '<div class="fluid item" data-value="' + value.program_no + '">\n' +
+                '  <i class="heart ' + (value.is_submitted ? 'outline' : '') + ' icon"></i>\n' +
+                ' | ' +
+                '  <i class="heart ' + (value.is_judged ? 'outline' : '') + ' icon"></i>\n' +
+                ' | ' +
+                '  ' + value.program_no + '\n' +
+                ' | ' +
+                '  ' + (value.is_judged ? value.score : '**') + '\n' +
+                '</div>'
+            );
+
+        $programMenu.append(item);
+
+    });
+
+    $selectedProgramNo.trigger('change');
+    $selectedProgramNo.change(function () {
+        alert($selectedProgramNo.val());
+    });
+
+}
+// END
+
+// TODO DO REGISTER
+function doRegister(){
+
+    $username = $("#username");
+    $password = $("#password");
+
+    if($username.val().trim() === "" || $password.val().trim() === ""){
+        alert("username and password can not be none.");
+        return;
+    }
+
+    $.ajax({
+        url: dataindustryUrl + `/user/create/` + encode($username.val()) + `/` + encode($password.val()),
+        type: "GET",
+        headers: {
+            "Accept": "application/json"
+        },
+        dataType: 'json',
+        error: function (jqXHR) {
+            alert(jqXHR.responseText);
+            alert(jqXHR.status);
+            },
+        success : function(data) {
+            alert("register success.")
         }
     });
 }
@@ -412,25 +511,25 @@ function loadSavedSource() {
 }
 
 // TODO PACKAGE INTERFACE DATA TO MAP
-function package_interface_data(){
+function package_ui_data(){
 
-    if (parseInt($program.language_id) === 44) {
-        $program.source_code = sourceEditor.getValue();
-    }else{
-        $program.source_code = encode(sourceEditor.getValue());
+    if($program === undefined){
+        $program = {};
     }
-    $program.stdin = encode(stdinEditor.getValue());
-    $program.language_id = resolveLanguageId($selectLanguage.val());
-    $program.compiler_options = $compilerOptions.val();
-    $program.command_line_arguments = $commandLineArguments.val();
 
-    return {
-        source_code: $program.source_code,
-        language_id: $program.language_id,
-        stdin: $program.stdin,
-        compiler_options: $program.compiler_options,
-        command_line_arguments: $program.command_line_arguments
-    };
+    $program["program_no"] = $selectedProgramNo.val();
+    $program["stdin"] = encode(stdinEditor.getValue());
+    $program["language_id"] = resolveLanguageId($selectLanguage.val());
+    if (parseInt($program["language_id"]) === 44) {
+        $program["source_code"] = sourceEditor.getValue();
+    }else{
+        $program["source_code"] = encode(sourceEditor.getValue());
+    }
+    $program["compiler_options"] = $compilerOptions.val();
+    $program["command_line_arguments"] = $commandLineArguments.val();
+
+
+    return $program;
 }
 // END
 
@@ -454,8 +553,7 @@ function run() {
     sandboxMessageEditor.setValue("");
 
     // TODO SUBMIT PROGRAM BEFORE RUN
-    let data = package_interface_data();
-    submitProgram();
+    let data = package_ui_data();
     // END
 
     timeStart = performance.now();
@@ -480,11 +578,18 @@ function run() {
 // TODO SUBMIT PROGRAM
 function submitProgram(){
 
-    let data = package_interface_data();
+    if($userProfile === undefined){
+        alert("need login first.");
+        return;
+    }
 
-    $selectProgram = $("#select-program");
+    let data = package_ui_data();
+
     data.user_profile_oid = $userProfile._id.$oid;
-    data.item_program_no = $selectProgram.find(":selected")[0].value;
+
+    data.is_submitted = true;
+    data.is_judged = false;
+    data.score = 0;
 
     $.ajax({
         url: dataindustryUrl + `/program`,
@@ -543,6 +648,10 @@ function applyProgram() {
 
 // TODO LOAD
 function loadProgram(){
+
+    if($userProfile === undefined){
+        return
+    }
 
     let user_profile_oid = $userProfile._id.$oid;
     let item_program_no = $selectProgram.find(":selected")[0].value;
@@ -711,6 +820,11 @@ $(document).ready(function () {
         doLogin();
     });
 
+    $registerBtn = $("#register-btn");
+    $registerBtn.click(function (e) {
+        doRegister();
+    });
+
     $menuLoginBtn = $("#menu-login-btn");
     $menuLoginBtn.click(function (e) {
         showLoginModal();
@@ -729,12 +843,13 @@ $(document).ready(function () {
     $selectLanguage = $("#select-language");
     $selectLanguage.change(function (e) {
 
-        if(decode($program.source_code).trim() === "" ||
-            parseInt($selectLanguage.val()) !== $program.language_id){
-            insertTemplate();
-        }else {
+        if($program !== undefined &&
+            decode($program.source_code).trim() !== "" &&
+            parseInt($selectLanguage.val()) === $program.language_id){
             sourceEditor.setValue(decode($program.source_code));
             changeEditorLanguage();
+        }else {
+            insertTemplate();
         }
     });
     // END
@@ -940,7 +1055,8 @@ $(document).ready(function () {
     });
 
     // TODO RYU ADD START
-    $("#select-program-panel").hide();
+    $("#program-menu-panel").hide();
+    $("#username-label-panel").hide();
     showLoginModal();
     // RYU ADD END
 

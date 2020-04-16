@@ -4,19 +4,12 @@
 <head>
     <meta charset="UTF-8">
 
-    <meta name="description" content="Free and open-source online code editor that allows you to write and execute code from a rich set of languages.">
-    <meta name="keywords" content="online editor, online code editor, online ide, online compiler, online interpreter, run code online, learn programming online,
-            online debugger, programming in browser, online code runner, online code execution, debug online, debug C code online, debug C++ code online,
-            programming online, snippet, snippets, code snippet, code snippets, pastebin, execute code, programming in browser, run c online, run C++ online,
-            run java online, run python online, run ruby online, run c# online, run rust online, run pascal online, run basic online">
-    <meta name="author" content="Herman Zvonimir Došilović">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="HBUT ONLINE CODING TRAINER">
-    <meta property="og:description" content="Powered by Judge0 IDE, Free and open-source online code editor that allows you to write and execute code from a rich set of languages.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/judge0/ide/master/.github/wallpaper.png">
-
+    <script src="js/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 
+    <script src="js/goldenlayout.min.js"></script>
+    <link rel="stylesheet" href="css/goldenlayout-base.css" />
+    <link rel="stylesheet" href="css/goldenlayout-dark-theme.css"  />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/goldenlayout.min.js" integrity="sha256-NhJAZDfGgv4PiB+GVlSrPdh3uc75XXYSM4su8hgTchI=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-base.css" integrity="sha256-oIDR18yKFZtfjCJfDsJYpTBv1S9QmxYopeqw2dO96xM=" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-dark-theme.css" integrity="sha256-ygw8PvSDJJUGLf6Q9KIQsYR3mOmiQNlDaxMLDOx9xL0=" crossorigin="anonymous" />
@@ -30,10 +23,19 @@
             }
         };
     </script>
-    <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>
-    <script src="https://unpkg.com/monaco-editor@0.18.1/min/vs/editor/editor.main.nls.js"></script>
-    <script src="https://unpkg.com/monaco-editor@0.18.1/min/vs/editor/editor.main.js"></script>
 
+<!--    <script src="js/loader.js"></script>-->
+<!--    <script src="js/editor.main.nls.js"></script>-->
+<!--    <script src="js/editor.main.js"></script>-->
+<!--    <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>-->
+    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/loader.js"></script>
+    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.nls.js"></script>
+    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.js"></script>
+
+    <link href="css/css.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/semantic.min.css" />
+    <script src="js/semantic.min.js" ></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha256-9mbkOfVho3ZPXfM7W8sV2SndrGDuh7wuyLjtsWeTI1Q=" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js" integrity="sha256-t8GepnyPmw9t+foMh3mKNvcorqNHamSKtKRxxpUEgFI=" crossorigin="anonymous"></script>
 
@@ -68,7 +70,7 @@
         <div class="left menu">
 
             <!-- TODO ADD LOGIN BUTTON ON MENU -->
-            <div id="menu-login-btn-panel" class="item no-left-padding borderless">
+            <div id="menu-login-btn-panel" class="item no-padding borderless">
                 <button id="menu-login-btn" class="ui primary labeled icon button">
                     <i class="sign-in icon"></i>
                     LOGIN
@@ -76,13 +78,28 @@
             </div>
             <!-- END -->
 
-            <!-- TODO ADD PROGRAM SELECT DROPDOWN LIST -->
-            <div id="select-program-panel" class="item borderless">
-                <select id="select-program" class="ui dropdown">
-                    <option value="0-0-0" selected>《算法分析与设计》</option>
-                    <option value="1-1-0">1，快速排序</option>
-                    <option value="1-1-1">2，二叉树</option>
-                </select>
+            <!-- TODO SHOW USERNAME TEXT -->
+            <div id="username-label-panel" class="item no-padding borderless">
+            <div class="ui labeled button">
+                <div class="ui button">
+                    学号
+                </div>
+                <a id="username-label" class="ui basic label">
+                    USERNAME
+                </a>
+            </div>
+            </div>
+            <!-- END -->
+
+            <!-- TODO PROGRAM SELECT MENU -->
+            <div id="program-menu-panel" class="item borderless">
+                <div class="ui fluid selection dropdown" style="width:480px !important;">
+                    <input type="hidden" id="selected-program-no">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">算法分析与设计</div>
+                    <div id="program-menu" class="fluid ui vertical menu">
+                    </div>
+                </div>
             </div>
             <!-- END -->
 
@@ -97,7 +114,7 @@
                         for current language</div>
                 </div>
             </div>
-            <div class="link item" onclick="$('#site-settings').modal('show')"><i class="cog icon"></i> Settings</div>
+            <div class="link item" onclick="$('#site-settings').modal('show')" style="display:none;"><i class="cog icon"></i> Settings</div>
             <div class="item borderless">
                 <select id="select-language" class="ui dropdown">
                     <option value="45" mode="UNKNOWN">Assembly (NASM 2.14.02)</option> <!-- Unknown mode. Help needed. -->
@@ -136,12 +153,12 @@
                     <option value="1001" mode="rust">V (latest)</option> <!-- Replacement mode. Help needed. -->
                 </select>
             </div>
-            <div class="item fitted borderless">
+            <div class="item fitted borderless" style="display: none">
                 <div class="ui input">
                     <input id="compiler-options" type="text" placeholder="Compiler options" />
                 </div>
             </div>
-            <div class="item borderless">
+            <div class="item borderless" style="display: none">
                 <div class="ui input">
                     <input id="command-line-arguments" type="text" placeholder="Command line arguments" />
                 </div>
@@ -159,7 +176,7 @@
 
             <!-- TODO ADD STATUS TEXT -->
             <div class="item no-left-padding borderless">
-                <a id="submit-status" class="ui green label">Status.</a>
+                <a id="submit-status" class="ui green large label">Status.</a>
             </div>
             <!-- END -->
 
@@ -241,6 +258,7 @@
     <div id="login-modal" class="ui modal">
         <div class="header" align="center">
             <img src="./images/hbut_icon.png" height="100" />
+            <h2>Hubei University of Technology Coding Trainer Online</h2>
         </div>
         <div class="scrolling content" align="center">
             <div class="ui labeled input">
@@ -257,6 +275,10 @@
             </div>
         </div>
         <div class="actions">
+            <button id="register-btn" class="ui labeled icon primary basic button">
+                <i class="location arrow icon"></i>
+                REGISTER
+            </button>
             <button id="login-btn" class="ui labeled icon primary button">
                 <i class="sign-in icon"></i>
                 LOGIN
@@ -302,14 +324,14 @@
     </div>
 
     <div id="site-footer">
-        <span id="donate-line">
+        <span id="donate-line" style="display: none">
             <a class="item" target="_blank" href="https://www.patreon.com/hermanzdosilovic"><i class="patreon icon" style="color: #f06553;"></i> Become a Patron</a>
             ·
             <a class="item" target="_blank" href="https://paypal.me/hermanzdosilovic"><i class="paypal icon" style="color: #00457c;"></i></i> Donate with PayPal</a>
         </span>
         <div id="editor-status-line"></div>
         <span>© 2016-2020 <a href="https://judge0.com">Judge0</a> · Powered by <a href="https://api.judge0.com">Judge0
-                API</a> · Source code available on <a href="https://github.com/judge0/ide">GitHub</a></span>
+                API</a>, Modified by liujinhang@hbut.edu.cn · Source code available on <a href="https://github.com/judge0/ide">GitHub</a></span>
         <span id="status-line"></span>
     </div>
 </body>

@@ -24,13 +24,13 @@
         };
     </script>
 
-<!--    <script src="js/loader.js"></script>-->
-<!--    <script src="js/editor.main.nls.js"></script>-->
-<!--    <script src="js/editor.main.js"></script>-->
-<!--    <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>-->
-    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/loader.js"></script>
-    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.nls.js"></script>
-    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.js"></script>
+    <script src="js/loader.js"></script>
+    <script src="js/editor.main.nls.js"></script>
+    <script src="js/editor.main.js"></script>
+
+<!--    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/loader.js"></script>-->
+<!--    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.nls.js"></script>-->
+<!--    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.js"></script>-->
 
     <link href="css/css.css" rel="stylesheet">
 
@@ -164,9 +164,17 @@
                 </div>
             </div>
 
-            <!-- TODO ADD SUBMIT BUTTON PANEL -->
+            <!-- TODO ADD SUBMIT AND PUBLISH BUTTON PANEL -->
             <div id="submit-btn-panel" class="item no-left-padding borderless">
-                <button id="submit-btn" class="ui primary labeled icon button"><i class="upload icon"></i>Submit</button>
+                <button id="submit-btn" class="ui primary green labeled icon button"><i class="upload icon"></i>
+                    SUBMIT
+                </button>
+            </div>
+
+            <div id="publish-btn-panel" class="item no-left-padding borderless">
+                <button id="publish-btn" class="ui primary red labeled icon button"><i class="upload icon"></i>
+                    PUBLISH
+                </button>
             </div>
             <!-- END -->
 

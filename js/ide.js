@@ -39,6 +39,7 @@ let $runBtn;
 // TODO DEFINE SOME VARIABLES FOR CUSTOM
 let $selectProgram;
 let $submitBtn;
+let $publishBtn;
 let $loginBtn;
 let $registerBtn;
 let $menuLoginBtn;
@@ -47,7 +48,8 @@ let $username;
 let $password;
 let $userProfile;
 let $program;
-let $programs;
+let $programTemplate;
+let $program_profile;
 let $selectedProgramNo;
 let $programMenu;
 // END
@@ -133,6 +135,35 @@ let layoutConfig = {
     }]
 };
 
+function submit_program_template(){
+
+    if($programTemplate === undefined){
+        $programTemplate = {};
+    }
+
+    $programTemplate['user_profile_oid'] = $userProfile._id.$oid;
+    $programTemplate['program_no'] = "1-1-1-1-1";
+    $programTemplate['program_name'] = "递归";
+    $programTemplate['language_id'] = "71";
+    $programTemplate['source_code'] = encode("print('a')");
+    $programTemplate['description'] = "测试";
+
+    $.ajax({
+        url: dataindustryUrl + '/program_template',
+        type: "POST",
+        async: true,
+        contentType: "application/json",
+        data: JSON.stringify($programTemplate),
+        success: function (data, textStatus, jqXHR) {
+
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            handleError(jqXHR, textStatus, errorThrown);
+        }
+    });
+
+}
+
 // TODO DO LOGIN
 function doLogin() {
 
@@ -150,30 +181,39 @@ function doLogin() {
     $.ajax({
         url: dataindustryUrl + `/user/` + encode($username.val()) + `/` + encode($password.val()),
         type: "GET",
-        headers: {
-            "Accept": "application/json"
-        },
+        headers: {"Accept": "application/json"},
         dataType: 'json',
-        error: function (jqXHR) {
-            alert(jqXHR.responseText);
-            alert(jqXHR.status);
-            },
-        success : function(data) {
+        success : function(data, textStatus, jqXHR) {
 
-            $userProfile = $.parseJSON(data);
+            $userProfile = data;
             localStorageSetItem("user-profile", $userProfile);
 
             $("#username-label")[0].innerText = decode($userProfile.username);
 
-            makeProgramMenu();
+
 
             $("#menu-login-btn-panel").hide();
             $("#username-label-panel").show();
             $("#program-menu-panel").show();
 
+            if($userProfile.user_type === "1"){
+                $("#submit-btn-panel").hide();
+                $("#publish-btn-panel").show();
+                makeSuperProgramMenu();
+            }else{
+                $("#submit-btn-panel").show();
+                $("#publish-btn-panel").hide();
+                makeProgramMenu();
+            }
+
             hideLoginModal();
 
-        }
+            // submit_program_template()
+
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert(jqXHR.responseJSON['message'])
+        },
     });
 }
 
@@ -191,10 +231,27 @@ function makeProgramMenu() {
             alert(jqXHR.status);
         },
         success: function (data) {
-
-            $programs = $.parseJSON(data);
+            $program_profile = $.parseJSON(data);
             makeProgramMenuItem();
+        }
+    });
+}
 
+function makeSuperProgramMenu() {
+    $.ajax({
+        url: dataindustryUrl + `/program_profile`,
+        type: "GET",
+        headers: {
+            "Accept": "application/json"
+        },
+        dataType: 'json',
+        error: function (jqXHR) {
+            alert(jqXHR.responseText);
+            alert(jqXHR.status);
+        },
+        success: function (data) {
+            $program_profile = data;
+            makeSuperProgramMenuItem();
         }
     });
 }
@@ -202,20 +259,46 @@ function makeProgramMenu() {
 // 生成程序单选项
 function makeProgramMenuItem() {
 
-    // TODO 清除以前添加的选项，解除以前绑定的事件
+    $selectedProgramNo.unbind('change');
 
-    $.each($programs, function (index, value) {
+    $.each($program_profile, function (index, value) {
 
         let item =
             $(
-                '<div class="fluid item" data-value="' + value.program_no + '">\n' +
-                '  <i class="heart ' + (value.is_submitted ? 'outline' : '') + ' icon"></i>\n' +
-                ' | ' +
-                '  <i class="heart ' + (value.is_judged ? 'outline' : '') + ' icon"></i>\n' +
-                ' | ' +
-                '  ' + value.program_no + '\n' +
-                ' | ' +
-                '  ' + (value.is_judged ? value.score : '**') + '\n' +
+                '<div class="item" data-value="' + value.program_no + '">\n' +
+                '  <a class="ui ' + (value.is_submitted ? 'red' : 'grey') + ' icon label">\n' +
+                '    <i class="heart ' + (value.is_submitted ? 'grey outline' : 'red') + ' icon"></i>\n' +
+                '    ' + (value.is_submitted ? '已提交' : '未提交') + '\n' +
+                '  </a>\n' +
+                '  <a class="ui ' + (value.is_judged ? 'red' : 'grey') + ' icon label">\n' +
+                '    <i class="heart ' + (value.is_judged ? 'grey outline' : 'red') + ' icon"></i>\n' +
+                '    ' + (value.is_judged ? value.score : '未评分') + '\n' +
+                '  </a>\n' +
+                '  <label>' + value.program_name + '</label>\n' +
+                '</div>'
+            );
+
+        $programMenu.append(item);
+
+    });
+
+    $selectedProgramNo.trigger('change');
+    $selectedProgramNo.change(function () {
+        alert($selectedProgramNo.val());
+    });
+
+}
+
+function makeSuperProgramMenuItem() {
+
+    $selectedProgramNo.unbind('change');
+
+    $.each($program_profile, function (index, value) {
+
+        let item =
+            $(
+                '<div class="item" data-value="' + value.program_no + '">\n' +
+                '  <label>' + value.program_name + '</label>\n' +
                 '</div>'
             );
 
@@ -232,31 +315,35 @@ function makeProgramMenuItem() {
 // END
 
 // TODO DO REGISTER
-function doRegister(){
+function doRegister() {
 
-    $username = $("#username");
-    $password = $("#password");
+    $userProfile = {};
 
-    if($username.val().trim() === "" || $password.val().trim() === ""){
-        alert("username and password can not be none.");
+    $username = $("#username").val().trim();
+    $password = $("#password").val().trim();
+
+    if ($username === "" || $password === "") {
+        alert("username and password can not be empty.");
         return;
     }
 
+    $userProfile['username'] = encode($username)
+    $userProfile['password'] = encode($password)
+
     $.ajax({
-        url: dataindustryUrl + `/user/create/` + encode($username.val()) + `/` + encode($password.val()),
-        type: "GET",
-        headers: {
-            "Accept": "application/json"
-        },
-        dataType: 'json',
-        error: function (jqXHR) {
-            alert(jqXHR.responseText);
-            alert(jqXHR.status);
+            url: dataindustryUrl + `/user`,
+            type: "POST",
+            async: true,
+            contentType: "application/json",
+            data: JSON.stringify($userProfile),
+            success: function (data, textStatus, jqXHR) {
+                alert(data.message)
             },
-        success : function(data) {
-            alert("register success.")
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseJSON['message'])
+            }
         }
-    });
+    );
 }
 // END
 
@@ -576,10 +663,36 @@ function run() {
 }
 
 // TODO SUBMIT PROGRAM
+function publishProgram(){
+
+    if($userProfile === undefined){
+        alert("please login first.");
+        return;
+    }
+
+    let data = package_ui_data();
+
+    data.user_profile_oid = $userProfile._id.$oid;
+
+    $.ajax({
+        url: dataindustryUrl + `/program_template`,
+        type: "POST",
+        async: true,
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: function (data, textStatus, jqXHR) {
+            let submit_status = "Published. " + new Date().Format("yyyy-MM-dd HH:mm:ss");
+            $("#submit-status").html(submit_status)
+        },
+        error: handleRunError
+    });
+
+}
+
 function submitProgram(){
 
     if($userProfile === undefined){
-        alert("need login first.");
+        alert("please login first.");
         return;
     }
 
@@ -603,7 +716,6 @@ function submitProgram(){
         },
         error: handleRunError
     });
-
 }
 
 Date.prototype.Format = function (fmt) {
@@ -779,8 +891,6 @@ $(window).resize(function() {
 
 $(document).ready(function () {
 
-    console.log("Hey, Judge0 IDE is open-sourced: https://github.com/judge0/ide. Have fun!");
-
     $compilerOptions = $("#compiler-options");
     $commandLineArguments = $("#command-line-arguments");
     $commandLineArguments.attr("size", $commandLineArguments.attr("placeholder").length);
@@ -810,6 +920,24 @@ $(document).ready(function () {
                 clearInterval(time);
             }else if(i === 5){
                 $submitBtn.addClass("loading");
+            }
+            i--;
+        }, 1000);
+    });
+
+        // TODO EVENT BINDING
+    $publishBtn = $("#publish-btn");
+    $publishBtn.click(function (e) {
+
+        publishProgram();
+
+        let i = 5;
+        const time = setInterval(function(){
+            if(i === 0){
+                $publishBtn.removeClass("loading");
+                clearInterval(time);
+            }else if(i === 5){
+                $publishBtn.addClass("loading");
             }
             i--;
         }, 1000);

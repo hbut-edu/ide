@@ -57,10 +57,9 @@
 
         <div id="site-header" class="header item">
             <a href="/">
-                <img id="site-icon" src="./images/judge0_icon.png">
-                <h2> Judge0 IDE </h2>
+<!--                <img id="site-icon" src="./images/judge0_icon.png">-->
+<!--                <h2> Judge0 IDE </h2>-->
                 <!-- TODO ADD HBUT LOGO -->
-                <h2> + </h2>
                 <img id="hbut-icon" src="./images/hbut_icon.png">
                 <h2>&nbsp;</h2>
                 <img id="hbut-text-icon" src="./images/hbut_text_icon.png">
@@ -94,9 +93,9 @@
             <!-- TODO PROGRAM SELECT MENU -->
             <div id="program-menu-panel" class="item borderless">
                 <div class="ui fluid selection dropdown" style="width:480px !important;">
-                    <input type="hidden" id="selected-program-no">
+                    <input type="hidden" id="selected-program-key-input">
                     <i class="dropdown icon"></i>
-                    <div class="default text">算法分析与设计</div>
+                    <div id="program-header" class="default text">算法分析与设计</div>
                     <div id="program-menu" class="fluid ui vertical menu">
                     </div>
                 </div>
@@ -114,43 +113,43 @@
                         for current language</div>
                 </div>
             </div>
-            <div class="link item" onclick="$('#site-settings').modal('show')" style="display:none;"><i class="cog icon"></i> Settings</div>
+<!--            <div class="link item" onclick="$('#site-settings').modal('show')" style="display:none;"><i class="cog icon"></i> Settings</div>-->
             <div class="item borderless">
                 <select id="select-language" class="ui dropdown">
-                    <option value="45" mode="UNKNOWN">Assembly (NASM 2.14.02)</option> <!-- Unknown mode. Help needed. -->
-                    <option value="46" mode="shell">Bash (5.0.0)</option>
-                    <option value="47" mode="UNKNOWN">Basic (FBC 1.07.1)</option> <!-- Unknown mode. Help needed. -->
-                    <option value="48" mode="c">C (GCC 7.4.0)</option>
-                    <option value="49" mode="c">C (GCC 8.3.0)</option>
+<!--                    <option value="45" mode="UNKNOWN">Assembly (NASM 2.14.02)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="46" mode="shell">Bash (5.0.0)</option>-->
+<!--                    <option value="47" mode="UNKNOWN">Basic (FBC 1.07.1)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="48" mode="c">C (GCC 7.4.0)</option>-->
+<!--                    <option value="49" mode="c">C (GCC 8.3.0)</option>-->
                     <option value="50" mode="c">C (GCC 9.2.0)</option>
-                    <option value="51" mode="csharp">C# (Mono 6.6.0.161)</option>
-                    <option value="52" mode="cpp">C++ (GCC 7.4.0)</option>
-                    <option value="53" mode="cpp">C++ (GCC 8.3.0)</option>
+<!--                    <option value="51" mode="csharp">C# (Mono 6.6.0.161)</option>-->
+<!--                    <option value="52" mode="cpp">C++ (GCC 7.4.0)</option>-->
+<!--                    <option value="53" mode="cpp">C++ (GCC 8.3.0)</option>-->
                     <option value="54" mode="cpp">C++ (GCC 9.2.0)</option>
-                    <option value="55" mode="UNKNOWN">Common Lisp (SBCL 2.0.0)</option> <!-- Unknown mode. Help needed. -->
-                    <option value="56" mode="UNKNOWN">D (DMD 2.089.1)</option> <!-- Unknown mode. Help needed. -->
-                    <option value="57" mode="UNKNOWN">Elixir (1.9.4)</option> <!-- Unknown mode. Help needed. -->
-                    <option value="58" mode="UNKNOWN">Erlang (OTP 22.2)</option> <!-- Unknown mode. Help needed. -->
-                    <option value="44" mode="plaintext">Executable</option>
-                    <option value="59" mode="UNKNOWN">Fortran (GFortran 9.2.0)</option> <!-- Unknown mode. Help needed. -->
-                    <option value="60" mode="go">Go (1.13.5)</option>
-                    <option value="61" mode="UNKNOWN">Haskell (GHC 8.8.1)</option> <!-- Unknown mode. Help needed. -->
+<!--                    <option value="55" mode="UNKNOWN">Common Lisp (SBCL 2.0.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="56" mode="UNKNOWN">D (DMD 2.089.1)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="57" mode="UNKNOWN">Elixir (1.9.4)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="58" mode="UNKNOWN">Erlang (OTP 22.2)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="44" mode="plaintext">Executable</option>-->
+<!--                    <option value="59" mode="UNKNOWN">Fortran (GFortran 9.2.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="60" mode="go">Go (1.13.5)</option>-->
+<!--                    <option value="61" mode="UNKNOWN">Haskell (GHC 8.8.1)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
                     <option value="62" mode="java">Java (OpenJDK 13.0.1)</option>
                     <option value="63" mode="javascript">JavaScript (Node.js 12.14.0)</option>
-                    <option value="64" mode="lua">Lua (5.3.5)</option>
-                    <option value="1000" mode="python">Nim (stable)</option> <!-- Replacement mode. Help needed. -->
-                    <option value="65" mode="UNKNOWN">OCaml (4.09.0)</option> <!-- Unknown mode. Help needed. -->
-                    <option value="66" mode="UNKNOWN">Octave (5.1.0)</option> <!-- Unknown mode. Help needed. -->
-                    <option value="67" mode="pascal">Pascal (FPC 3.0.4)</option>
-                    <option value="68" mode="php">PHP (7.4.1)</option>
-                    <option value="43" mode="plaintext">Plain Text</option>
-                    <option value="69" mode="UNKNOWN">Prolog (GNU Prolog 1.4.5)</option> <!-- Unknown mode. Help needed. -->
+<!--                    <option value="64" mode="lua">Lua (5.3.5)</option>-->
+<!--                    <option value="1000" mode="python">Nim (stable)</option> &lt;!&ndash; Replacement mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="65" mode="UNKNOWN">OCaml (4.09.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="66" mode="UNKNOWN">Octave (5.1.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+<!--                    <option value="67" mode="pascal">Pascal (FPC 3.0.4)</option>-->
+<!--                    <option value="68" mode="php">PHP (7.4.1)</option>-->
+<!--                    <option value="43" mode="plaintext">Plain Text</option>-->
+<!--                    <option value="69" mode="UNKNOWN">Prolog (GNU Prolog 1.4.5)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
                     <option value="70" mode="python">Python (2.7.17)</option>
                     <option value="71" mode="python">Python (3.8.1)</option>
-                    <option value="72" mode="ruby">Ruby (2.7.0)</option>
-                    <option value="73" mode="rust">Rust (1.40.0)</option>
-                    <option value="74" mode="rust">TypeScript (3.7.4)</option>
-                    <option value="1001" mode="rust">V (latest)</option> <!-- Replacement mode. Help needed. -->
+<!--                    <option value="72" mode="ruby">Ruby (2.7.0)</option>-->
+<!--                    <option value="73" mode="rust">Rust (1.40.0)</option>-->
+<!--                    <option value="74" mode="rust">TypeScript (3.7.4)</option>-->
+<!--                    <option value="1001" mode="rust">V (latest)</option> &lt;!&ndash; Replacement mode. Help needed. &ndash;&gt;-->
                 </select>
             </div>
             <div class="item fitted borderless" style="display: none">
@@ -184,13 +183,14 @@
 
             <!-- TODO ADD STATUS TEXT -->
             <div class="item no-left-padding borderless">
-                <a id="submit-status" class="ui green large label">Status.</a>
+                <a id="submit-status" ></a>
             </div>
             <!-- END -->
 
             <div id="navigation-message" class="item borderless" style="display: none">
                 <span class="navigation-message-text"></span>
             </div>
+
         </div>
 
         <div class="right menu" style="display: none">
@@ -332,14 +332,9 @@
     </div>
 
     <div id="site-footer">
-        <span id="donate-line" style="display: none">
-            <a class="item" target="_blank" href="https://www.patreon.com/hermanzdosilovic"><i class="patreon icon" style="color: #f06553;"></i> Become a Patron</a>
-            ·
-            <a class="item" target="_blank" href="https://paypal.me/hermanzdosilovic"><i class="paypal icon" style="color: #00457c;"></i></i> Donate with PayPal</a>
-        </span>
         <div id="editor-status-line"></div>
         <span>© 2016-2020 <a href="https://judge0.com">Judge0</a> · Powered by <a href="https://api.judge0.com">Judge0
-                API</a>, Modified by liujinhang@hbut.edu.cn · Source code available on <a href="https://github.com/judge0/ide">GitHub</a></span>
+                API</a>, Modified by liujinhang@hbut.edu.cn</span>
         <span id="status-line"></span>
     </div>
 </body>

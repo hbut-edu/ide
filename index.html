@@ -24,13 +24,13 @@
         };
     </script>
 
-    <script src="js/loader.js"></script>
-    <script src="js/editor.main.nls.js"></script>
-    <script src="js/editor.main.js"></script>
+<!--    <script src="js/loader.js"></script>-->
+<!--    <script src="js/editor.main.nls.js"></script>-->
+<!--    <script src="js/editor.main.js"></script>-->
 
-<!--    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/loader.js"></script>-->
-<!--    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.nls.js"></script>-->
-<!--    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.js"></script>-->
+    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/loader.js"></script>
+    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.nls.js"></script>
+    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.js"></script>
 
     <link href="css/css.css" rel="stylesheet">
 
@@ -57,9 +57,7 @@
 
         <div id="site-header" class="header item">
             <a href="/">
-<!--                <img id="site-icon" src="./images/judge0_icon.png">-->
-<!--                <h2> Judge0 IDE </h2>-->
-                <!-- TODO ADD HBUT LOGO -->
+                <!-- TODO 添加湖北工业大学标志 -->
                 <img id="hbut-icon" src="./images/hbut_icon.png">
                 <h2>&nbsp;</h2>
                 <img id="hbut-text-icon" src="./images/hbut_text_icon.png">
@@ -68,7 +66,7 @@
         </div>
         <div class="left menu">
 
-            <!-- TODO ADD LOGIN BUTTON ON MENU -->
+            <!-- TODO 在菜单上添加登陆按钮 -->
             <div id="menu-login-btn-panel" class="item no-padding borderless">
                 <button id="menu-login-btn" class="ui primary labeled icon button">
                     <i class="sign-in icon"></i>
@@ -77,7 +75,7 @@
             </div>
             <!-- END -->
 
-            <!-- TODO SHOW USERNAME TEXT -->
+            <!-- TODO 添加显示用户名的文本框 -->
             <div id="username-label-panel" class="item no-padding borderless">
             <div class="ui labeled button">
                 <div class="ui button">
@@ -90,7 +88,7 @@
             </div>
             <!-- END -->
 
-            <!-- TODO PROGRAM SELECT MENU -->
+            <!-- TODO 添加程序选择下拉列表 -->
             <div id="program-menu-panel" class="item borderless">
                 <div class="ui fluid selection dropdown" style="width:480px !important;">
                     <input type="hidden" id="selected-program-key-input">
@@ -163,7 +161,7 @@
                 </div>
             </div>
 
-            <!-- TODO ADD SUBMIT AND PUBLISH BUTTON PANEL -->
+            <!-- TODO 添加提交与发布按钮 -->
             <div id="submit-btn-panel" class="item no-left-padding borderless">
                 <button id="submit-btn" class="ui primary green labeled icon button"><i class="upload icon"></i>
                     SUBMIT
@@ -181,9 +179,9 @@
                 <button id="run-btn" class="ui primary labeled icon button"><i class="play icon"></i>Run (F9)</button>
             </div>
 
-            <!-- TODO ADD STATUS TEXT -->
+            <!-- TODO 在菜单上添加状态文本框 -->
             <div class="item no-left-padding borderless">
-                <a id="submit-status" ></a>
+                <a id="menu-status"></a>
             </div>
             <!-- END -->
 
@@ -263,6 +261,7 @@
         </div>
     </div>
 
+    <!-- TODO 添加模态登陆窗口 -->
     <div id="login-modal" class="ui modal">
         <div class="header" align="center">
             <img src="./images/hbut_icon.png" height="100" />
@@ -297,6 +296,7 @@
             </button>
         </div>
     </div>
+    <!-- END -->
 
     <div id="site-settings" class="ui modal">
         <i class="close icon"></i>
@@ -333,8 +333,7 @@
 
     <div id="site-footer">
         <div id="editor-status-line"></div>
-        <span>© 2016-2020 <a href="https://judge0.com">Judge0</a> · Powered by <a href="https://api.judge0.com">Judge0
-                API</a>, Modified by liujinhang@hbut.edu.cn</span>
+        <span>Powered by <a href="https://microsoft.github.io/monaco-editor/">Microsoft Monaco Editor</a> and <a href="https://judge0.com/">Judge0</a>. Modified by LIUJINHANG@HBUT.EDU.CN</span>
         <span id="status-line"></span>
     </div>
 </body>

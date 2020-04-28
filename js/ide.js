@@ -1,5 +1,4 @@
-// TODO CHANGE AND ADD JUDGE0 API AND ADDITIONAL CUSTOM SERVICE TO LOCAL
-// var defaultUrl = localStorageGetItem("api-url") || "https://api.judge0.com";
+// TODO 修改代码运行服务器地址，添加附加功能的web服务地址
 let defaultUrl = localStorageGetItem("api-url") || "http://10.0.0.3:3000";
 let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://10.0.0.3:4321";
 // END
@@ -37,31 +36,28 @@ let $commandLineArguments;
 let $insertTemplateBtn;
 let $runBtn;
 
-// TODO DEFINE SOME VARIABLES FOR CUSTOM
+// TODO 界面元素变量定义
 let $submitBtn;
 let $publishBtn;
 let $loginBtn;
 let $registerBtn;
 let $menuLoginBtn;
 let $cancelBtn;
+
+// TODO 下拉列表的三个联动组件
 let $selectedProgramKeyInput;
 let $programMenu;
 let $programHeader;
 
-// 本地状态变量
-
+// TODO 本地状态变量
 let $username;
 let $password;
 let $userProfile;
 
 let $program;
-let $programTemplate;
 let $programs;
-let $programTemplates;
-let $programTemplateInformation;
 
 let $selectedProgramKey;
-
 let $prevLanguageId;
 // END
 
@@ -74,7 +70,7 @@ let timeEnd;
 
 let messagesData;
 
-// TODO 修改layout，加入description区域
+// TODO 修改布局，加入description（markdown）区域
 let layoutConfig = {
     settings: {
         showPopoutIcon: false,
@@ -168,16 +164,16 @@ let layoutConfig = {
     }]
 };
 
-function doInitialize (){
+// TODO 初始化所有本地变量
+function doInitialize() {
 
     // 清除所有本地变量
+    $username = "";
+    $password = "";
     $userProfile = null;
     $program = null;
-    $programTemplate = null;
     $programs = new Map;
-    $programTemplates = new Map;
-    $programs = null;
-    $programTemplateInformation = null;
+    $prevLanguageId = "";
 
     stdoutEditor.setValue("");
     stderrEditor.setValue("");
@@ -191,8 +187,126 @@ function doInitialize (){
 
 }
 
-function generateProgramKey(program_no, language_id){
+// TODO 格式化当前日期
+Date.prototype.Format = function (fmt) {
+    let o = {
+        "M+": this.getMonth() + 1,
+        "d+": this.getDate(),
+        "H+": this.getHours(),
+        "m+": this.getMinutes(),
+        "s+": this.getSeconds(),
+        "q+": Math.floor((this.getMonth() + 3) / 3),
+        "S": this.getMilliseconds()
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (let k in o)
+        if (new RegExp("(" + k + ")").test(fmt)) fmt =
+            fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+};
+
+// TODO 逻辑空值检测
+function isLogicEmpty(target_object) {
+    return target_object === undefined ||
+        target_object === null ||
+        target_object.trim() === "";
+}
+
+// TODO 显示模态窗口
+function showLoginModal() {
+    $("#login-modal").modal("show");
+}
+
+// TODO 隐藏模态窗口
+function hideLoginModal() {
+    $("#login-modal").modal("hide");
+}
+
+// TODO 生成program key
+function encodeProgramKey(program_no, language_id) {
     return program_no + "/" + language_id;
+}
+
+// TODO 解码program key
+function decodeProgramKey(programKey) {
+
+    if (
+        programKey !== undefined &&
+        programKey !== null &&
+        programKey.trim() !== "" &&
+        programKey.indexOf("/") !== -1) {
+        return programKey.split("/");
+    } else {
+        return null;
+    }
+
+}
+
+// TODO 将界面上的数据打包到PROGRAM里面
+function packageUIToData() {
+
+    if ($program === undefined || $program === null) {
+        $program = {};
+    }
+
+    if ($userProfile !== undefined && $userProfile !== null) {
+        $program["program_no"] = decodeProgramKey($selectedProgramKeyInput.val())[0];
+    }
+
+    $program["stdin"] = encode(stdinEditor.getValue());
+    $program["language_id"] = resolveLanguageId($selectLanguage.val());
+
+    if (parseInt($program["language_id"]) === 44) {
+        $program["source_code"] = sourceEditor.getValue();
+    } else {
+        $program["source_code"] = encode(sourceEditor.getValue());
+    }
+
+    $program["description"] = encode(descriptionEditor.getValue());
+    $program["compiler_options"] = $compilerOptions.val();
+    $program["command_line_arguments"] = $commandLineArguments.val();
+
+    return $program;
+}
+
+// TODO 将PROGRAM中的数值反映到界面上
+function applyDataToUI(isDrivenSelectLanguage) {
+
+    stdoutEditor.setValue("");
+    stderrEditor.setValue("");
+    compileOutputEditor.setValue("");
+    sandboxMessageEditor.setValue("");
+
+    sourceEditor.setValue(decode($program.source_code));
+
+    stdinEditor.setValue(decode($program.stdin));
+
+    descriptionEditor.setValue(decode($program.description));
+    $compilerOptions.val($program.compiler_options);
+    $commandLineArguments.val($program.command_line_arguments);
+
+    if (isDrivenSelectLanguage)
+        $selectLanguage.dropdown("set selected", $program.language_id);
+
+    changeEditorLanguage();
+}
+
+// TODO 新建一个PROGRAM
+function createNewProgram() {
+
+    let newProgram = {};
+
+    newProgram["program_no"] = decodeProgramKey($selectedProgramKeyInput.val())[0];
+    newProgram["user_profile_oid"] = $userProfile._id.oid;
+    newProgram["command_line_arguments"] = "";
+    newProgram["compiler_options"] = "";
+    newProgram["language_id"] = resolveLanguageId($selectLanguage.val());
+    newProgram["source_code"] = encode(sources[newProgram["language_id"]]);
+    newProgram["description"] = encode(descriptionEditor.getValue());
+    newProgram["compiler_options"] = "";
+    newProgram["stdin"] = "";
+
+    return newProgram;
 }
 
 // TODO 登陆逻辑
@@ -200,16 +314,18 @@ function doLogin() {
 
     doInitialize();
 
-    $username = $("#username").val().trim();
-    $password = $("#password").val().trim();
+    $username = $("#username");
+    $password = $("#password");
 
-    if ($username === "" || $password === "") {
+    if (isLogicEmpty($username.val()) || isLogicEmpty($password.val())) {
         alert("username and password can not be empty.");
         return;
     }
 
     $.ajax({
-        url: dataindustryUrl + `/user_profile/` + encode($username) + `/` + encode($password),
+        url: dataindustryUrl + "/user_profile/" +
+            encode($username.val().trim()) + "/" +
+            encode($password.val().trim()),
         type: "GET",
         headers: {"Accept": "application/json"},
         dataType: 'json',
@@ -223,21 +339,19 @@ function doLogin() {
             $("#username-label-panel").show();
             $("#program-menu-panel").show();
 
-            if ($userProfile.user_type === "1") {
+            if ($userProfile.user_type === 0) {
 
-                // super user
-                $("#submit-btn-panel").hide();
-                $("#publish-btn-panel").show();
-                makeSuperProgramMenu();
-
-            } else {
-
-                // normal user
                 $("#submit-btn-panel").show();
                 $("#publish-btn-panel").hide();
-                makeProgramMenu(true);
+
+            } else if ($userProfile.user_type === 1) {
+
+                $("#submit-btn-panel").hide();
+                $("#publish-btn-panel").show();
 
             }
+
+            makeProgramMenu();
 
             hideLoginModal();
 
@@ -248,86 +362,118 @@ function doLogin() {
     });
 }
 
-// 生成程序单
-function makeProgramMenu(isReload) {
+// TODO 注册逻辑
+function doRegister() {
 
-    if(isReload) {
+    $userProfile = {};
 
-        $.ajax({
-            url: dataindustryUrl + `/programs/` + $userProfile._id.$oid,
-            type: "GET",
-            headers: {"Accept": "application/json"},
-            dataType: 'json',
-            error: function (jqXHR) {
-                alert(jqXHR.responseText);
-                alert(jqXHR.status);
-            },
-            success: function (data) {
+    $username = $("#username");
+    $password = $("#password");
 
-                $programs = new Map;
-
-                $.each($.parseJSON(data), function (index, value) {
-                    $programs.set(generateProgramKey(value.program_no, value.language_id), value);
-                });
-
-                makeProgramMenuItem();
-
-            }
-        });
-    }else{
-        makeProgramMenuItem();
+    if (isLogicEmpty($username.val()) || isLogicEmpty($password.val())) {
+        alert("username and password can not be empty.");
+        return;
     }
+
+    $userProfile['username'] = encode($username.val().trim());
+    $userProfile['password'] = encode($password.val().trim());
+
+    $.ajax({
+            url: dataindustryUrl + "/user_profile",
+            type: "POST",
+            async: true,
+            contentType: "application/json",
+            data: JSON.stringify($userProfile),
+            success: function (data, textStatus, jqXHR) {
+                alert(data.message)
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseJSON['message'])
+            }
+        }
+    );
 }
 
-function makeSuperProgramMenu() {
+// TODO 生成程序单
+function makeProgramMenu() {
+
+    let ajax_call_url = "";
+
+    if ($userProfile.user_type === 0)
+        ajax_call_url = dataindustryUrl + "/programs/" + $userProfile._id.$oid;
+    else if ($userProfile.user_type === 1)
+        ajax_call_url = dataindustryUrl + "/program_templates/" + $userProfile._id.$oid;
+    else
+        return;
+
     $.ajax({
-        url: dataindustryUrl + `/program_profile`,
+        url: ajax_call_url,
         type: "GET",
-        headers: {
-            "Accept": "application/json"
-        },
+        headers: {"Accept": "application/json"},
         dataType: 'json',
-        error: function (jqXHR) {
-            alert(jqXHR.responseText);
-            alert(jqXHR.status);
-        },
+        error: handleRunError,
         success: function (data) {
-            $programs = data;
-            makeSuperProgramMenuItem();
+
+            $programs = new Map;
+
+            $.each($.parseJSON(data), function (index, value) {
+                $programs.set(encodeProgramKey(value.program_no, value.language_id), value);
+            });
+
+            // 如果程序下拉列表尚未作出选择，那么在载入programs项后保持selectedProgramKey为空值。
+            // 如果程序下拉列表曾经作出过选择，在重载programs后重新设定当前值。
+            if (!isLogicEmpty($selectedProgramKey)) {
+                let key = encodeProgramKey($program.program_no, $program.language_id);
+                $program = $programs.get(key);
+                $selectedProgramKeyInput[0].value = key;
+                $selectedProgramKey = key;
+            }
+
+            makeProgramMenuItem();
+
         }
     });
 }
 
-function check_logic_empty(target_object){
-    if(target_object === undefined || target_object === null || target_object.trim() === "")
-        return true;
-    else
-        return false;
-}
-
-// TODO 生成普通用户的程序下拉列表选项
+// TODO 生成程序单子项
 function makeProgramMenuItem() {
 
     $programMenu = $('#program-menu');
-
     $programMenu.html("");
 
-    $programs.forEach(function(program){
+    $programs.forEach(function (program) {
 
-        let item =
-            $(
-                '<div class="item" data-value="' + generateProgramKey(program.program_no, program.language_id) + '">\n' +
-                '  <a class="ui ' + (program.is_submitted ? 'red' : 'grey') + ' icon label">\n' +
-                '    <i class="heart ' + (program.is_submitted ? 'grey outline' : 'red') + ' icon"></i>\n' +
-                '    ' + (program.is_submitted ? '已提交' : '未提交') + '\n' +
-                '  </a>\n' +
-                '  <a class="ui ' + (program.is_judged ? 'red' : 'grey') + ' icon label">\n' +
-                '    <i class="heart ' + (program.is_judged ? 'grey outline' : 'red') + ' icon"></i>\n' +
-                '    ' + (program.is_judged ? program.score : '未评分') + '\n' +
-                '  </a>\n' +
-                '  <label>' + program.program_name + '</label>\n' +
-                '</div>'
-            );
+        let item = "";
+
+        let key = encodeProgramKey(program.program_no, program.language_id);
+
+        if ($userProfile.user_type === 0) {
+
+            item =
+                $(
+                    '<div class="item" data-value="' + key + '">\n' +
+                    '  <a class="ui ' + (program.is_submitted ? 'red' : 'grey') + ' icon label">\n' +
+                    '    <i class="heart ' + (program.is_submitted ? 'grey outline' : 'red') + ' icon"></i>\n' +
+                    '    ' + (program.is_submitted ? '已提交' : '未提交') + '\n' +
+                    '  </a>\n' +
+                    '  <a class="ui ' + (program.is_judged ? 'red' : 'grey') + ' icon label">\n' +
+                    '    <i class="heart ' + (program.is_judged ? 'grey outline' : 'red') + ' icon"></i>\n' +
+                    '    ' + (program.is_judged ? program.score : '未评分') + '\n' +
+                    '  </a>\n' +
+                    '  <label>' + program.program_name + '</label>\n' +
+                    '</div>'
+                );
+
+        } else if ($userProfile.user_type === 1) {
+
+            item =
+                $(
+                    '<div class="item" data-value="' + key + '">\n' +
+                    '  <label>' + program.program_name + '</label>\n' +
+                    '</div>'
+                );
+
+        }
 
         $programMenu.append(item);
 
@@ -338,8 +484,9 @@ function makeProgramMenuItem() {
     // 当鼠标悬停的时候储存当前的修改到$program
     $programMenu.focus(function () {
         $selectedProgramKey = $selectedProgramKeyInput.val();
-        if($selectedProgramKey !== ""){
-            packageUIToData(false);
+        console.log($selectedProgramKey);
+        if (!isLogicEmpty($selectedProgramKey)) {
+            packageUIToData();
             $programs.set($selectedProgramKey, $program);
         }
 
@@ -349,16 +496,15 @@ function makeProgramMenuItem() {
     $selectedProgramKeyInput.trigger('change');
     $selectedProgramKeyInput.change(function (e) {
         $selectedProgramKey = $selectedProgramKeyInput.val();
-        if($selectedProgramKey !== "") {
+        if (!isLogicEmpty($selectedProgramKey)) {
             $program = $programs.get($selectedProgramKey);
             $prevLanguageId = $program.language_id;
-            applyDataToUI(true, false);
+            applyDataToUI(true);
         }
     });
 
     // 调整下拉列表的显示部分
-    console.log($selectedProgramKey)
-    if (!check_logic_empty($selectedProgramKey)) {
+    if ($userProfile.user_type === 0 && !isLogicEmpty($selectedProgramKey)) {
         $programHeader = $("#program-header");
         $programHeader.html("");
         let program = $programs.get($selectedProgramKey);
@@ -376,67 +522,76 @@ function makeProgramMenuItem() {
         );
 
         $programHeader.append(header);
+
     }
 
 }
 
-// TODO 生成超级用户的程序下拉列表选项
-function makeSuperProgramMenuItem() {
+// TODO 提交与发布的按钮逻辑
+function submitOrPublish() {
 
-    $selectedProgramKeyInput = $('#selected-program-no-input');
-    $programMenu = $('#program-menu');
-
-    $.each($programs, function (index, value) {
-
-        let item =
-            $(
-                '<div class="item" data-value="' + value.program_no + '">\n' +
-                '  <label>' + value.program_name + '</label>\n' +
-                '</div>'
-            );
-
-        $programMenu.append(item);
-
-    });
-
-    $selectedProgramKeyInput.trigger('change');
-    $selectedProgramKeyInput.change(function () {
-        alert($selectedProgramKeyInput.val());
-    });
-
-}
-// END
-
-// TODO DO REGISTER
-function doRegister() {
-
-    $userProfile = {};
-
-    $username = $("#username").val().trim();
-    $password = $("#password").val().trim();
-
-    if ($username === "" || $password === "") {
-        alert("username and password can not be empty.");
+    if ($userProfile === undefined || $userProfile === null) {
+        showError("Error", "Please login first.");
         return;
     }
 
-    $userProfile['username'] = encode($username)
-    $userProfile['password'] = encode($password)
+    if (sourceEditor.getValue().trim() === "") {
+        showError("Error", "Source code can't be empty!");
+        return;
+    }
+
+    $submitBtn.addClass("loading");
+    $publishBtn.addClass("loading");
+
+    packageUIToData();
+
+    let ajax_call_url = "";
+
+    if ($userProfile.user_type === 0) {
+
+        ajax_call_url = dataindustryUrl + "/program";
+
+        $program.is_submitted = true;
+        $program.is_judged = false;
+        $program.score = 0;
+
+    } else if ($userProfile.user_type === 1) {
+
+        //
+
+        ajax_call_url = dataindustryUrl + "/program_template";
+    }
+
+    $program.user_profile_oid = $userProfile._id.$oid;
+    $programs.set($selectedProgramKey, $program);
 
     $.ajax({
-            url: dataindustryUrl + "/user_profile",
-            type: "POST",
-            async: true,
-            contentType: "application/json",
-            data: JSON.stringify($userProfile),
-            success: function (data, textStatus, jqXHR) {
-                alert(data.message)
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert(jqXHR.responseJSON['message'])
-            }
-        }
-    );
+        url: ajax_call_url,
+        type: "POST",
+        async: true,
+        contentType: "application/json",
+        data: JSON.stringify($program),
+        success: function (data, textStatus, jqXHR) {
+            let i = 4;
+            const time = setInterval(function () {
+                if (i === 0) {
+                    $submitBtn.removeClass("loading");
+                    $publishBtn.removeClass("loading");
+                    let menuStatusHtml = data.message + " " + new Date().Format("yyyy-MM-dd HH:mm:ss");
+                    $("#menu-status").html(menuStatusHtml);
+                    clearInterval(time);
+
+                    // 只有学生模式下需要重建程序下拉列表
+                    if ($userProfile.user_type === 0) {
+                        makeProgramMenu();
+                    }
+
+                }
+                i--;
+            }, 1000);
+        },
+        error: handleRunError
+    });
 }
 // END
 
@@ -454,23 +609,23 @@ function decode(bytes) {
 }
 
 function localStorageSetItem(key, value) {
-  try {
-    localStorage.setItem(key, value);
-  } catch (ignorable) {
-  }
+    try {
+        localStorage.setItem(key, value);
+    } catch (ignorable) {
+    }
 }
 
 function localStorageGetItem(key) {
-  try {
-    return localStorage.getItem(key);
-  } catch (ignorable) {
-    return null;
-  }
+    try {
+        return localStorage.getItem(key);
+    } catch (ignorable) {
+        return null;
+    }
 }
 
 function showMessages() {
     let width = $about.offset().left - parseFloat($about.css("padding-left")) -
-                $navigationMessage.parent().offset().left - parseFloat($navigationMessage.parent().css("padding-left")) - 5;
+        $navigationMessage.parent().offset().left - parseFloat($navigationMessage.parent().css("padding-left")) - 5;
 
     if (width < 200 || messagesData === undefined) {
         return;
@@ -516,18 +671,6 @@ function showError(title, content) {
     $("#site-modal").modal("show");
 }
 
-// TODO SHOW LOGIN MODAL WINDOW
-function showLoginModal(){
-    $("#login-modal").modal("show");
-}
-// END
-
-// TODO HIDE LOGIN MODAL WINDOW
-function hideLoginModal(){
-    $("#login-modal").modal("hide");
-}
-// END
-
 function handleError(jqXHR, textStatus, errorThrown) {
     showError(`${jqXHR.statusText} (${jqXHR.status})`, `<pre>${JSON.stringify(jqXHR, null, 4)}</pre>`);
 }
@@ -553,7 +696,7 @@ function handleResult(data) {
 
     if (blinkStatusLine) {
         $statusLine.addClass("blink");
-        setTimeout(function() {
+        setTimeout(function () {
             blinkStatusLine = false;
             localStorageSetItem("blink", "false");
             $statusLine.removeClass("blink");
@@ -594,7 +737,7 @@ function handleResult(data) {
 }
 
 function getIdFromURI() {
-  return location.search.substr(1).trim();
+    return location.search.substr(1).trim();
 }
 
 function save() {
@@ -647,7 +790,7 @@ function loadSavedSource() {
         $.ajax({
             url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
             type: "GET",
-            success: function(data, textStatus, jqXHR) {
+            success: function (data, textStatus, jqXHR) {
                 sourceEditor.setValue(decode(data["source_code"]));
                 $selectLanguage.dropdown("set selected", data["language_id"]);
                 $compilerOptions.val(data["compiler_options"]);
@@ -690,94 +833,6 @@ function loadSavedSource() {
     }
 }
 
-function decodeProgramKey(programKey){
-
-    if(
-        programKey !== undefined &&
-        programKey !== null &&
-        programKey.trim() !== "" &&
-        programKey.indexOf("/") !== -1){
-        return programKey.split("/");
-    }else{
-        return null;
-    }
-
-}
-
-// TODO PACKAGE INTERFACE TO $PROGRAM
-function packageUIToData(isDecodeDescription) {
-
-    if ($program === undefined || $program === null) {
-        $program = {};
-    }
-
-    $program["program_no"] = decodeProgramKey($selectedProgramKeyInput.val())[0];
-    $program["stdin"] = encode(stdinEditor.getValue());
-    $program["language_id"] = resolveLanguageId($selectLanguage.val());
-
-    if (parseInt($program["language_id"]) === 44) {
-        $program["source_code"] = sourceEditor.getValue();
-    } else {
-        $program["source_code"] = encode(sourceEditor.getValue());
-    }
-    if(isDecodeDescription)
-        $program["description"] = encode(descriptionEditor.getValue());
-    else
-        $program["description"] = descriptionEditor.getValue();
-
-    $program["compiler_options"] = $compilerOptions.val();
-    $program["command_line_arguments"] = $commandLineArguments.val();
-
-    return $program;
-}
-
-// TODO CREATE NEW PROGRAM
-function createNewProgram() {
-
-    let newProgram = {};
-
-    newProgram["program_no"] = decodeProgramKey($selectedProgramKeyInput.val())[0];
-    newProgram["user_profile_oid"] = $userProfile._id.oid;
-    newProgram["command_line_arguments"] = "";
-    newProgram["compiler_options"] = "";
-    newProgram["language_id"] = resolveLanguageId($selectLanguage.val());
-    newProgram["source_code"] = encode(sources[newProgram["language_id"]]);
-    newProgram["description"] = $program["description"];
-    // newProgram["description"] = encode(descriptionEditor.getValue());
-    newProgram["compiler_options"] = "";
-    newProgram["stdin"] = "";
-
-    return newProgram;
-}
-
-// TODO 将PROGRAM中的数值反映到界面上
-function applyDataToUI(isDrivenSelectLanguage, isDecodeDescription) {
-
-    stdoutEditor.setValue("");
-    stderrEditor.setValue("");
-    compileOutputEditor.setValue("");
-    sandboxMessageEditor.setValue("");
-
-    sourceEditor.setValue(decode($program.source_code));
-
-    stdinEditor.setValue(decode($program.stdin));
-
-    console.log($program.description);
-
-    if(isDecodeDescription)
-        descriptionEditor.setValue(decode($program.description));
-    else
-        descriptionEditor.setValue($program.description);
-
-    $compilerOptions.val($program.compiler_options);
-    $commandLineArguments.val($program.command_line_arguments);
-
-    if(isDrivenSelectLanguage)
-        $selectLanguage.dropdown("set selected", $program.language_id);
-
-    changeEditorLanguage();
-}
-
 function run() {
 
     if (sourceEditor.getValue().trim() === "") {
@@ -797,8 +852,8 @@ function run() {
     compileOutputEditor.setValue("");
     sandboxMessageEditor.setValue("");
 
-    // TODO 封装UI数据
-    packageUIToData(false);
+    // TODO 封装界面数据
+    packageUIToData();
     // END
 
     timeStart = performance.now();
@@ -819,148 +874,6 @@ function run() {
         error: handleRunError
     });
 }
-
-// TODO SUBMIT PROGRAM
-function publish(){
-
-    if($userProfile === null){
-        alert("please login first.");
-        return;
-    }
-
-    if (sourceEditor.getValue().trim() === "") {
-        showError("Error", "Source code can't be empty!");
-        return;
-    } else {
-        $publishBtn.addClass("loading");
-    }
-
-    packageUIToData(false);
-
-    data.user_profile_oid = $userProfile._id.$oid;
-
-    $.ajax({
-        url: dataindustryUrl + `/program_template`,
-        type: "POST",
-        async: true,
-        contentType: "application/json",
-        data: JSON.stringify($program),
-        success: function (data, textStatus, jqXHR) {
-            let submit_status = "Published. " + new Date().Format("yyyy-MM-dd HH:mm:ss");
-            $("#submit-status").html(submit_status);
-            let i = 4;
-            const time = setInterval(function () {
-                if (i === 0) {
-                    $publishBtn.removeClass("loading");
-                    clearInterval(time);
-                }
-                i--;
-            }, 1000);
-        },
-        error: handleRunError
-    });
-
-}
-
-// TODO 提交按钮逻辑
-function submit(){
-
-    if($userProfile === undefined || $userProfile === null){
-        showError("Error", "Please login first.");
-        return;
-    }
-
-    if (sourceEditor.getValue().trim() === "") {
-        showError("Error", "Source code can't be empty!");
-        return;
-    }
-
-    $submitBtn.addClass("loading");
-
-    packageUIToData(false);
-
-    $program.user_profile_oid = $userProfile._id.$oid;
-    $program.is_submitted = true;
-    $program.is_judged = false;
-    $program.score = 0;
-    $programs.set($selectedProgramKey, $program);
-
-    $.ajax({
-        url: dataindustryUrl + `/program`,
-        type: "POST",
-        async: true,
-        contentType: "application/json",
-        data: JSON.stringify($program),
-        success: function (data, textStatus, jqXHR) {
-            let i = 4;
-            const time = setInterval(function () {
-                if (i === 0) {
-                    $submitBtn.removeClass("loading");
-                    let submit_status = data.message + " " + new Date().Format("yyyy-MM-dd HH:mm:ss");
-                    $("#submit-status").html(submit_status);
-                    clearInterval(time);
-
-                    makeProgramMenu(true);
-
-                }
-                i--;
-            }, 1000);
-        },
-        error: handleRunError
-    });
-}
-
-Date.prototype.Format = function (fmt) {
-    let o = {
-        "M+": this.getMonth() + 1,
-        "d+": this.getDate(),
-        "H+": this.getHours(),
-        "m+": this.getMinutes(),
-        "s+": this.getSeconds(),
-        "q+": Math.floor((this.getMonth() + 3) / 3),
-        "S": this.getMilliseconds()
-    };
-    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-    for (let k in o)
-    if (new RegExp("(" + k + ")").test(fmt)) fmt =
-        fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-    return fmt;
-};
-
-// TODO LOAD
-// function loadProgram(){
-//
-//     if($userProfile === null){
-//         return;
-//     }
-//
-//     $selectedProgramNo = $selectedProgramKeyInput.val();
-//
-//     let program_key = generateProgramKey($program.program_no, $selectedProgramNo);
-//
-//     // if($programs.has(program_key)){
-//     //     $program = $programs.get(program_key);
-//     //     applyDataToUI();
-//     //     return;
-//     // }
-//
-//     $.ajax({
-//         url: dataindustryUrl + `/program/` + $userProfile._id.$oid + `/` + $selectedProgramNo,
-//         type: "GET",
-//         headers: {"Accept": "application/json"},
-//         dataType: 'json',
-//         success : function(data, textStatus, jqXHR) {
-//             $program = JSON.parse(data);
-//             $programs.set(program_key, $program);
-//             applyDataToUI();
-//         },
-//         error: function (jqXHR, textStatus, errorThrown) {
-//             alert(jqXHR.responseJSON['message'])
-//             }
-//     });
-//
-// }
-// // END
 
 function fetchSubmission(submission_token) {
     $.ajax({
@@ -1019,7 +932,7 @@ function disposeEditorModeObject() {
     try {
         editorModeObject.dispose();
         editorModeObject = null;
-    } catch(ignorable) {
+    } catch (ignorable) {
     }
 }
 
@@ -1031,11 +944,11 @@ function changeEditorMode() {
     } else if (editorMode === "emacs") {
         let statusNode = $("#editor-status-line")[0];
         editorModeObject = new MonacoEmacs.EmacsExtension(sourceEditor);
-        editorModeObject.onDidMarkChange(function(e) {
-          statusNode.textContent = e ? "Mark Set!" : "Mark Unset";
+        editorModeObject.onDidMarkChange(function (e) {
+            statusNode.textContent = e ? "Mark Set!" : "Mark Unset";
         });
-        editorModeObject.onDidChangeKey(function(str) {
-          statusNode.textContent = str;
+        editorModeObject.onDidChangeKey(function (str) {
+            statusNode.textContent = str;
         });
         editorModeObject.start();
     }
@@ -1060,7 +973,7 @@ function editorsUpdateFontSize(fontSize) {
     sandboxMessageEditor.updateOptions({fontSize: fontSize});
 }
 
-$(window).resize(function() {
+$(window).resize(function () {
     layout.updateSize();
     showMessages();
 });
@@ -1083,35 +996,40 @@ $(document).ready(function () {
         run();
     });
 
-    // TODO SUBMIT按钮事件
+    // START
+    // TODO 提交按钮事件
     $submitBtn = $("#submit-btn");
     $submitBtn.click(function (e) {
-        submit();
+        submitOrPublish();
     });
     $('#submit-btn-panel').hide();
 
-    // TODO EVENT BINDING
+    // TODO 发布按钮事件
     $publishBtn = $("#publish-btn");
     $publishBtn.click(function (e) {
-        publish();
+        submitOrPublish();
     });
     $('#publish-btn-panel').hide();
 
+    // TODO 登陆按钮事件（弹出框）
     $loginBtn = $("#login-btn");
     $loginBtn.click(function (e) {
         doLogin();
     });
 
+    // TODO 注册按钮事件（弹出框）
     $registerBtn = $("#register-btn");
     $registerBtn.click(function (e) {
         doRegister();
     });
 
+    // TODO 登陆按钮事件（菜单）
     $menuLoginBtn = $("#menu-login-btn");
     $menuLoginBtn.click(function (e) {
         showLoginModal();
     });
 
+    // TODO 取消按钮事件（弹出框）
     $cancelBtn = $("#cancel-btn");
     $cancelBtn.click(function (e) {
         hideLoginModal();
@@ -1120,33 +1038,46 @@ $(document).ready(function () {
     // TODO 语言切换事件
     $selectLanguage = $("#select-language");
     $selectLanguage.change(function (e) {
-        $selectedProgramKey = $selectedProgramKeyInput.val();
-        if ($selectedProgramKey !== "") {
 
-            let prevKey = generateProgramKey($program.program_no, $prevLanguageId);
-            let currentkey = generateProgramKey($program.program_no, $selectLanguage.val());
+        if ($userProfile !== undefined && $userProfile !== null) {
 
-            // 保存旧的数据
-            packageUIToData(false);
-            $programs.set(prevKey, $program);
+            $selectedProgramKey = $selectedProgramKeyInput.val();
+            if (!isLogicEmpty($selectedProgramKey)) {
 
-            // 载入新的数据
-            if ($programs.has(currentkey) === false) {
-                // 如果数据不存在，手动生成数据
-                $programs.set(currentkey, createNewProgram());
+                let prevKey = encodeProgramKey($program.program_no, $prevLanguageId);
+                let currentkey = encodeProgramKey($program.program_no, $selectLanguage.val());
+
+                // 保存旧的数据
+                packageUIToData();
+                $programs.set(prevKey, $program);
+
+                // 载入新的数据
+                if ($programs.has(currentkey) === false) {
+                    // 如果数据不存在，手动生成数据
+                    $programs.set(currentkey, createNewProgram());
+                }
+
+                $program = $programs.get(currentkey);
+                applyDataToUI(false);
+                $prevLanguageId = $selectLanguage.val();
             }
-
-            $program = $programs.get(currentkey);
-            applyDataToUI(false, false);
-            $prevLanguageId = $selectLanguage.val();
+        } else {
+            insertTemplate();
+            changeEditorLanguage();
         }
+
     });
+
+    $("#program-menu-panel").hide();
+    $("#username-label-panel").hide();
+    showLoginModal();
+    // END
 
     $navigationMessage = $("#navigation-message span");
     $about = $("#about");
 
     $(`input[name="editor-mode"][value="${editorMode}"]`).prop("checked", true);
-    $("input[name=\"editor-mode\"]").on("change", function(e) {
+    $("input[name=\"editor-mode\"]").on("change", function (e) {
         $('#site-settings').modal('hide');
 
         editorMode = e.target.value;
@@ -1273,9 +1204,9 @@ $(document).ready(function () {
                 }
             });
 
-            container.on("tab", function(tab) {
+            container.on("tab", function (tab) {
                 tab.element.append("<span id=\"stdout-dot\" class=\"dot\" hidden></span>");
-                tab.element.on("mousedown", function(e) {
+                tab.element.on("mousedown", function (e) {
                     e.target.closest(".lm_tab").children[3].hidden = true;
                 });
             });
@@ -1293,9 +1224,9 @@ $(document).ready(function () {
                 }
             });
 
-            container.on("tab", function(tab) {
+            container.on("tab", function (tab) {
                 tab.element.append("<span id=\"stderr-dot\" class=\"dot\" hidden></span>");
-                tab.element.on("mousedown", function(e) {
+                tab.element.on("mousedown", function (e) {
                     e.target.closest(".lm_tab").children[3].hidden = true;
                 });
             });
@@ -1313,9 +1244,9 @@ $(document).ready(function () {
                 }
             });
 
-            container.on("tab", function(tab) {
+            container.on("tab", function (tab) {
                 tab.element.append("<span id=\"compile-output-dot\" class=\"dot\" hidden></span>");
-                tab.element.on("mousedown", function(e) {
+                tab.element.on("mousedown", function (e) {
                     e.target.closest(".lm_tab").children[3].hidden = true;
                 });
             });
@@ -1333,9 +1264,9 @@ $(document).ready(function () {
                 }
             });
 
-            container.on("tab", function(tab) {
+            container.on("tab", function (tab) {
                 tab.element.append("<span id=\"sandbox-message-dot\" class=\"dot\" hidden></span>");
-                tab.element.on("mousedown", function(e) {
+                tab.element.on("mousedown", function (e) {
                     e.target.closest(".lm_tab").children[3].hidden = true;
                 });
             });
@@ -1354,12 +1285,6 @@ $(document).ready(function () {
 
         layout.init();
     });
-
-    // TODO RYU ADD START
-    $("#program-menu-panel").hide();
-    $("#username-label-panel").hide();
-    showLoginModal();
-    // RYU ADD END
 
 });
 

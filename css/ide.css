@@ -79,6 +79,7 @@ body {
     vertical-align: middle;
 }
 
+/* TODO 添加湖北工业大学标志的样式 */
 #hbut-icon {
     width: 40px;
     height: 40px;
@@ -89,6 +90,7 @@ body {
     height: 28px;
     vertical-align: middle;
 }
+/* END */
 
 #site-header {
     padding-left: 0;

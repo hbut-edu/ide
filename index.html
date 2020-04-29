@@ -2,340 +2,337 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta http-equiv="Access-Control-Allow-Credentials" content="false">
 
-    <script src="js/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <!--    <script src="js/jquery-3.5.0.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"
+            integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
 
-    <script src="js/goldenlayout.min.js"></script>
-    <link rel="stylesheet" href="css/goldenlayout-base.css" />
-    <link rel="stylesheet" href="css/goldenlayout-dark-theme.css"  />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/goldenlayout.min.js" integrity="sha256-NhJAZDfGgv4PiB+GVlSrPdh3uc75XXYSM4su8hgTchI=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-base.css" integrity="sha256-oIDR18yKFZtfjCJfDsJYpTBv1S9QmxYopeqw2dO96xM=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-dark-theme.css" integrity="sha256-ygw8PvSDJJUGLf6Q9KIQsYR3mOmiQNlDaxMLDOx9xL0=" crossorigin="anonymous" />
+    <!--    <script src="js/goldenlayout.min.js"></script>-->
+    <!--    <link rel="stylesheet" href="css/goldenlayout-base.css" />-->
+    <!--    <link rel="stylesheet" href="css/goldenlayout-dark-theme.css"  />-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/goldenlayout.min.js"
+            integrity="sha256-NhJAZDfGgv4PiB+GVlSrPdh3uc75XXYSM4su8hgTchI=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-base.css"
+          integrity="sha256-oIDR18yKFZtfjCJfDsJYpTBv1S9QmxYopeqw2dO96xM=" crossorigin="anonymous"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-dark-theme.css"
+          integrity="sha256-ygw8PvSDJJUGLf6Q9KIQsYR3mOmiQNlDaxMLDOx9xL0=" crossorigin="anonymous"/>
 
-    <script>
-        var require = {
-            paths: {
-                "vs": "https://unpkg.com/monaco-editor/min/vs",
-                "monaco-vim": "https://unpkg.com/monaco-vim/dist/monaco-vim",
-                "monaco-emacs": "https://unpkg.com/monaco-emacs/dist/monaco-emacs"
-            }
-        };
-    </script>
+    <!--    <link rel="stylesheet" href="css/semantic.min.css" />-->
+    <!--    <script src="js/semantic.min.js" ></script>-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+          integrity="sha256-9mbkOfVho3ZPXfM7W8sV2SndrGDuh7wuyLjtsWeTI1Q=" crossorigin="anonymous"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"
+            integrity="sha256-t8GepnyPmw9t+foMh3mKNvcorqNHamSKtKRxxpUEgFI=" crossorigin="anonymous"></script>
 
-<!--    <script src="js/loader.js"></script>-->
-<!--    <script src="js/editor.main.nls.js"></script>-->
-<!--    <script src="js/editor.main.js"></script>-->
-
-    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/loader.js"></script>
-    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.nls.js"></script>
-    <script src="https://unpkg.com/monaco-editor@0.18.0/min/vs/editor/editor.main.js"></script>
-
-    <link href="css/css.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="css/semantic.min.css" />
-    <script src="js/semantic.min.js" ></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha256-9mbkOfVho3ZPXfM7W8sV2SndrGDuh7wuyLjtsWeTI1Q=" crossorigin="anonymous" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js" integrity="sha256-t8GepnyPmw9t+foMh3mKNvcorqNHamSKtKRxxpUEgFI=" crossorigin="anonymous"></script>
-
-    <link href="https://fonts.googleapis.com/css?family=Exo+2" rel="stylesheet">
-
+    <script src="js/monaco-editor/min/vs/loader.js"></script>
     <script type="text/javascript" src="third_party/download.js"></script>
-
     <script type="text/javascript" src="js/ide.js"></script>
+
+    <!--    <link href="css/css.css" rel="stylesheet">-->
+    <link href="https://fonts.googleapis.com/css?family=Exo+2" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="css/ide.css">
 
     <title>湖北工业大学在线代码训练器</title>
-    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+
 </head>
 
 <body>
-    <div id="site-navigation" class="ui small inverted menu">
+<div id="site-navigation" class="ui small inverted menu">
 
-        <div id="site-header" class="header item">
-            <a href="/">
-                <!-- TODO 添加湖北工业大学标志 -->
-                <img id="hbut-icon" src="./images/hbut_icon.png">
-                <h2>&nbsp;</h2>
-                <img id="hbut-text-icon" src="./images/hbut_text_icon.png">
-                <!-- END -->
-            </a>
-        </div>
-        <div class="left menu">
-
-            <!-- TODO 在菜单上添加登陆按钮 -->
-            <div id="menu-login-btn-panel" class="item no-padding borderless">
-                <button id="menu-login-btn" class="ui primary labeled icon button">
-                    <i class="sign-in icon"></i>
-                    LOGIN
-                </button>
-            </div>
+    <div id="site-header" class="header item">
+        <a href="./index.html">
+            <h2>&nbsp;</h2>
+            <!-- TODO 添加湖北工业大学标志 -->
+            <img id="hbut-icon" src="./images/hbut_icon.png">
+            <h2>&nbsp;</h2>
+            <img id="hbut-text-icon" src="./images/hbut_text_icon.png">
             <!-- END -->
+        </a>
+    </div>
+    <div class="left menu">
 
-            <!-- TODO 添加显示用户名的文本框 -->
-            <div id="username-label-panel" class="item no-padding borderless">
+        <!-- TODO 在菜单上添加登陆按钮 -->
+        <div id="menu-login-btn-panel" class="item no-padding borderless">
+            <button id="menu-login-btn" class="ui primary labeled icon button">
+                <i class="sign-in icon"></i>
+                LOGIN
+            </button>
+        </div>
+        <!-- END -->
+
+        <!-- TODO 添加显示用户名的文本框 -->
+        <div id="username-label-panel" class="item no-padding borderless">
             <div class="ui labeled button">
                 <div class="ui button">
-                    学号
+                    NO
                 </div>
                 <a id="username-label" class="ui basic label">
                     USERNAME
                 </a>
             </div>
-            </div>
-            <!-- END -->
-
-            <!-- TODO 添加程序选择下拉列表 -->
-            <div id="program-menu-panel" class="item borderless">
-                <div class="ui fluid selection dropdown" style="width:480px !important;">
-                    <input type="hidden" id="selected-program-key-input">
-                    <i class="dropdown icon"></i>
-                    <div id="program-header" class="default text">算法分析与设计</div>
-                    <div id="program-menu" class="fluid ui vertical menu">
-                    </div>
-                </div>
-            </div>
-            <!-- END -->
-
-            <div class="ui dropdown item site-links on-hover">
-                File <i class="dropdown icon"></i>
-                <div class="menu">
-<!--                    <a class="item" target="_blank" href="/"><i class="file code icon"></i> New File</a>-->
-<!--                    <div class="item" onclick="save()"><i class="save icon"></i> Save (Ctrl + S)</div>-->
-                    <div class="item" onclick="downloadSource()"><i class="download icon"></i> Download</div>
-                    <!-- <div class="item"><i class="share icon"></i> Share</div> -->
-                    <div id="insert-template-btn" class="item"><i class="file code outline icon"></i> Insert template
-                        for current language</div>
-                </div>
-            </div>
-<!--            <div class="link item" onclick="$('#site-settings').modal('show')" style="display:none;"><i class="cog icon"></i> Settings</div>-->
-            <div class="item borderless">
-                <select id="select-language" class="ui dropdown">
-<!--                    <option value="45" mode="UNKNOWN">Assembly (NASM 2.14.02)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="46" mode="shell">Bash (5.0.0)</option>-->
-<!--                    <option value="47" mode="UNKNOWN">Basic (FBC 1.07.1)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="48" mode="c">C (GCC 7.4.0)</option>-->
-<!--                    <option value="49" mode="c">C (GCC 8.3.0)</option>-->
-                    <option value="50" mode="c">C (GCC 9.2.0)</option>
-<!--                    <option value="51" mode="csharp">C# (Mono 6.6.0.161)</option>-->
-<!--                    <option value="52" mode="cpp">C++ (GCC 7.4.0)</option>-->
-<!--                    <option value="53" mode="cpp">C++ (GCC 8.3.0)</option>-->
-                    <option value="54" mode="cpp">C++ (GCC 9.2.0)</option>
-<!--                    <option value="55" mode="UNKNOWN">Common Lisp (SBCL 2.0.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="56" mode="UNKNOWN">D (DMD 2.089.1)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="57" mode="UNKNOWN">Elixir (1.9.4)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="58" mode="UNKNOWN">Erlang (OTP 22.2)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="44" mode="plaintext">Executable</option>-->
-<!--                    <option value="59" mode="UNKNOWN">Fortran (GFortran 9.2.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="60" mode="go">Go (1.13.5)</option>-->
-<!--                    <option value="61" mode="UNKNOWN">Haskell (GHC 8.8.1)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-                    <option value="62" mode="java">Java (OpenJDK 13.0.1)</option>
-                    <option value="63" mode="javascript">JavaScript (Node.js 12.14.0)</option>
-<!--                    <option value="64" mode="lua">Lua (5.3.5)</option>-->
-<!--                    <option value="1000" mode="python">Nim (stable)</option> &lt;!&ndash; Replacement mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="65" mode="UNKNOWN">OCaml (4.09.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="66" mode="UNKNOWN">Octave (5.1.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-<!--                    <option value="67" mode="pascal">Pascal (FPC 3.0.4)</option>-->
-<!--                    <option value="68" mode="php">PHP (7.4.1)</option>-->
-<!--                    <option value="43" mode="plaintext">Plain Text</option>-->
-<!--                    <option value="69" mode="UNKNOWN">Prolog (GNU Prolog 1.4.5)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
-                    <option value="70" mode="python">Python (2.7.17)</option>
-                    <option value="71" mode="python">Python (3.8.1)</option>
-<!--                    <option value="72" mode="ruby">Ruby (2.7.0)</option>-->
-<!--                    <option value="73" mode="rust">Rust (1.40.0)</option>-->
-<!--                    <option value="74" mode="rust">TypeScript (3.7.4)</option>-->
-<!--                    <option value="1001" mode="rust">V (latest)</option> &lt;!&ndash; Replacement mode. Help needed. &ndash;&gt;-->
-                </select>
-            </div>
-            <div class="item fitted borderless" style="display: none">
-                <div class="ui input">
-                    <input id="compiler-options" type="text" placeholder="Compiler options" />
-                </div>
-            </div>
-            <div class="item borderless" style="display: none">
-                <div class="ui input">
-                    <input id="command-line-arguments" type="text" placeholder="Command line arguments" />
-                </div>
-            </div>
-
-            <!-- TODO 添加提交与发布按钮 -->
-            <div id="submit-btn-panel" class="item no-left-padding borderless">
-                <button id="submit-btn" class="ui primary green labeled icon button"><i class="upload icon"></i>
-                    SUBMIT
-                </button>
-            </div>
-
-            <div id="publish-btn-panel" class="item no-left-padding borderless">
-                <button id="publish-btn" class="ui primary red labeled icon button"><i class="upload icon"></i>
-                    PUBLISH
-                </button>
-            </div>
-            <!-- END -->
-
-            <div class="item no-left-padding borderless">
-                <button id="run-btn" class="ui primary labeled icon button"><i class="play icon"></i>Run (F9)</button>
-            </div>
-
-            <!-- TODO 在菜单上添加状态文本框 -->
-            <div class="item no-left-padding borderless">
-                <a id="menu-status"></a>
-            </div>
-            <!-- END -->
-
-            <div id="navigation-message" class="item borderless" style="display: none">
-                <span class="navigation-message-text"></span>
-            </div>
-
         </div>
+        <!-- END -->
 
-        <div class="right menu" style="display: none">
-            <a id="about" class="link item" target="_blank" href="https://judge0.com/about"><i class="info circle icon"></i> About</a>
-            <a id="api-url" class="link item" target="_blank" href="https://api.judge0.com"><i class="server icon"></i> API</a>
-            <div class="ui dropdown item site-links">
-                More
+        <!-- TODO 添加程序选择下拉列表 -->
+        <div id="program-menu-panel" class="item borderless">
+            <div class="ui fluid selection dropdown" style="width:480px !important;">
+                <input type="hidden" id="selected-program-key-input">
                 <i class="dropdown icon"></i>
-                <div class="menu">
-                    <a class="item" target="_blank" href="https://www.patreon.com/hermanzdosilovic"><i
-                            class="patreon icon"></i>
-                        Become a Patron</a>
-                    <a class="item" target="_blank" href="https://paypal.me/hermanzdosilovic"><i
-                            class="paypal icon"></i>
-                        Donate with PayPal</a>
-                    <div class="divider"></div>
-                    <a class="item" target="_blank" href="https://github.com/judge0/ide"><i class="github icon"></i>
-                        View source
-                        code on Github</a>
-                    <a class="item" target="_blank" href="https://github.com/judge0/ide/issues/new"><i
-                            class="exclamation circle icon"></i> Report an issue</a>
-                    <div class="divider"></div>
-                    <a class="item" target="_blank" href="https://judge0.com/#subscribe"><i class="envelope icon"></i>
-                        Subscribe
-                        to Judge0 news</a>
-                    <a class="item" target="_blank" href="https://discord.gg/6dvxeA8"><i
-                            class="discord icon"></i> Join a Discord server</a>
-                    <div class="divider"></div>
-                    <a class="item" target="_blank" href="mailto:hermanz.dosilovic@gmail.com"><i
-                            class="paper plane icon"></i>
-                        Contact the author</a>
-                    <a class="item" target="_blank" href="https://hermanz.dosilovic.com"><i class="user icon"></i> About
-                        the
-                        author</a>
-                    <div class="divider"></div>
-                    <a class="item" target="_blank"
-                        href="https://www.reddit.com/submit?url=https%3A%2F%2Fide.judge0.com&title=Judge0%20IDE"
-                        style="background-color: #ff4500 !important; color: white !important;"><i
-                            class="reddit icon"></i> Share
-                        on Reddit</a>
-                    <a class="item" target="_blank"
-                        href="https://twitter.com/intent/tweet?text=Judge0%20IDE&url=https%3A%2F%2Fide.judge0.com&via=hermanzvonimir"
-                        style="background-color: #1da1f2 !important; color: white !important;"><i
-                            class="twitter icon"></i>
-                        Share on Twitter</a>
-                    <a class="item" target="_blank"
-                        href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fide.judge0.com"
-                        style="background-color: #1877f2 !important; color: white !important;"><i
-                            class="facebook icon"></i>
-                        Share on Facebook</a>
+                <div id="program-header" class="default text">算法分析与设计</div>
+                <div id="program-menu" class="fluid ui vertical menu">
                 </div>
             </div>
+        </div>
+        <!-- END -->
+
+        <div class="ui dropdown item site-links on-hover">
+            File <i class="dropdown icon"></i>
+            <div class="menu">
+                <!--                    <a class="item" target="_blank" href="/"><i class="file code icon"></i> New File</a>-->
+                <!--                    <div class="item" onclick="save()"><i class="save icon"></i> Save (Ctrl + S)</div>-->
+                <div class="item" onclick="downloadSource()"><i class="download icon"></i> Download</div>
+                <!-- <div class="item"><i class="share icon"></i> Share</div> -->
+                <div id="insert-template-btn" class="item"><i class="file code outline icon"></i> Insert template
+                    for current language
+                </div>
+            </div>
+        </div>
+        <!--            <div class="link item" onclick="$('#site-settings').modal('show')" style="display:none;"><i class="cog icon"></i> Settings</div>-->
+        <div class="item borderless">
+            <select id="select-language" class="ui dropdown">
+                <!--                    <option value="45" mode="UNKNOWN">Assembly (NASM 2.14.02)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="46" mode="shell">Bash (5.0.0)</option>-->
+                <!--                    <option value="47" mode="UNKNOWN">Basic (FBC 1.07.1)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="48" mode="c">C (GCC 7.4.0)</option>-->
+                <!--                    <option value="49" mode="c">C (GCC 8.3.0)</option>-->
+                <option value="50" mode="c">C (GCC 9.2.0)</option>
+                <!--                    <option value="51" mode="csharp">C# (Mono 6.6.0.161)</option>-->
+                <!--                    <option value="52" mode="cpp">C++ (GCC 7.4.0)</option>-->
+                <!--                    <option value="53" mode="cpp">C++ (GCC 8.3.0)</option>-->
+                <option value="54" mode="cpp">C++ (GCC 9.2.0)</option>
+                <!--                    <option value="55" mode="UNKNOWN">Common Lisp (SBCL 2.0.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="56" mode="UNKNOWN">D (DMD 2.089.1)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="57" mode="UNKNOWN">Elixir (1.9.4)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="58" mode="UNKNOWN">Erlang (OTP 22.2)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="44" mode="plaintext">Executable</option>-->
+                <!--                    <option value="59" mode="UNKNOWN">Fortran (GFortran 9.2.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="60" mode="go">Go (1.13.5)</option>-->
+                <!--                    <option value="61" mode="UNKNOWN">Haskell (GHC 8.8.1)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <option value="62" mode="java">Java (OpenJDK 13.0.1)</option>
+                <option value="63" mode="javascript">JavaScript (Node.js 12.14.0)</option>
+                <!--                    <option value="64" mode="lua">Lua (5.3.5)</option>-->
+                <!--                    <option value="1000" mode="python">Nim (stable)</option> &lt;!&ndash; Replacement mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="65" mode="UNKNOWN">OCaml (4.09.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="66" mode="UNKNOWN">Octave (5.1.0)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <!--                    <option value="67" mode="pascal">Pascal (FPC 3.0.4)</option>-->
+                <!--                    <option value="68" mode="php">PHP (7.4.1)</option>-->
+                <!--                    <option value="43" mode="plaintext">Plain Text</option>-->
+                <!--                    <option value="69" mode="UNKNOWN">Prolog (GNU Prolog 1.4.5)</option> &lt;!&ndash; Unknown mode. Help needed. &ndash;&gt;-->
+                <option value="70" mode="python">Python (2.7.17)</option>
+                <option value="71" mode="python">Python (3.8.1)</option>
+                <!--                    <option value="72" mode="ruby">Ruby (2.7.0)</option>-->
+                <!--                    <option value="73" mode="rust">Rust (1.40.0)</option>-->
+                <!--                    <option value="74" mode="rust">TypeScript (3.7.4)</option>-->
+                <!--                    <option value="1001" mode="rust">V (latest)</option> &lt;!&ndash; Replacement mode. Help needed. &ndash;&gt;-->
+            </select>
+        </div>
+
+        <div class="item fitted borderless">
+            <div class="ui input">
+                <input id="compiler-options" type="text" placeholder="Compiler options"/>
+            </div>
+        </div>
+
+        <div class="item borderless">
+            <div class="ui input">
+                <input id="command-line-arguments" type="text" placeholder="Command line arguments"/>
+            </div>
+        </div>
+
+        <!-- TODO 添加提交与发布按钮 -->
+        <div id="submit-btn-panel" class="item no-left-padding borderless">
+            <button id="submit-btn" class="ui primary green labeled icon button"><i class="upload icon"></i>
+                SUBMIT
+            </button>
+        </div>
+
+        <div id="publish-btn-panel" class="item no-left-padding borderless">
+            <button id="publish-btn" class="ui primary red labeled icon button"><i class="upload icon"></i>
+                PUBLISH
+            </button>
+        </div>
+        <!-- END -->
+
+        <div class="item no-left-padding borderless">
+            <button id="run-btn" class="ui primary labeled icon button"><i class="play icon"></i>Run</button>
+        </div>
+
+        <!-- TODO 在菜单上添加状态文本框 -->
+        <div class="item no-left-padding borderless">
+            <a id="menu-status"></a>
+        </div>
+        <!-- END -->
+
+        <div id="navigation-message" class="item borderless" style="display: none">
+            <span class="navigation-message-text"></span>
         </div>
 
     </div>
 
-    <div id="site-content"></div>
-
-    <div id="site-modal" class="ui modal">
-        <div class="header">
-            <i class="close icon"></i>
-            <span id="title"></span>
-        </div>
-        <div class="scrolling content"></div>
-        <div class="actions">
-            <div class="ui small labeled icon cancel button">
-                <i class="remove icon"></i>
-                Close (ESC)
+    <div class="right menu" style="display: none">
+        <a id="about" class="link item" target="_blank" href="https://judge0.com/about"><i class="info circle icon"></i>
+            About</a>
+        <a id="api-url" class="link item" target="_blank" href="https://api.judge0.com"><i class="server icon"></i> API</a>
+        <div class="ui dropdown item site-links">
+            More
+            <i class="dropdown icon"></i>
+            <div class="menu">
+                <a class="item" target="_blank" href="https://www.patreon.com/hermanzdosilovic"><i
+                        class="patreon icon"></i>
+                    Become a Patron</a>
+                <a class="item" target="_blank" href="https://paypal.me/hermanzdosilovic"><i
+                        class="paypal icon"></i>
+                    Donate with PayPal</a>
+                <div class="divider"></div>
+                <a class="item" target="_blank" href="https://github.com/judge0/ide"><i class="github icon"></i>
+                    View source
+                    code on Github</a>
+                <a class="item" target="_blank" href="https://github.com/judge0/ide/issues/new"><i
+                        class="exclamation circle icon"></i> Report an issue</a>
+                <div class="divider"></div>
+                <a class="item" target="_blank" href="https://judge0.com/#subscribe"><i class="envelope icon"></i>
+                    Subscribe
+                    to Judge0 news</a>
+                <a class="item" target="_blank" href="https://discord.gg/6dvxeA8"><i
+                        class="discord icon"></i> Join a Discord server</a>
+                <div class="divider"></div>
+                <a class="item" target="_blank" href="mailto:hermanz.dosilovic@gmail.com"><i
+                        class="paper plane icon"></i>
+                    Contact the author</a>
+                <a class="item" target="_blank" href="https://hermanz.dosilovic.com"><i class="user icon"></i> About
+                    the
+                    author</a>
+                <div class="divider"></div>
+                <a class="item" target="_blank"
+                   href="https://www.reddit.com/submit?url=https%3A%2F%2Fide.judge0.com&title=Judge0%20IDE"
+                   style="background-color: #ff4500 !important; color: white !important;"><i
+                        class="reddit icon"></i> Share
+                    on Reddit</a>
+                <a class="item" target="_blank"
+                   href="https://twitter.com/intent/tweet?text=Judge0%20IDE&url=https%3A%2F%2Fide.judge0.com&via=hermanzvonimir"
+                   style="background-color: #1da1f2 !important; color: white !important;"><i
+                        class="twitter icon"></i>
+                    Share on Twitter</a>
+                <a class="item" target="_blank"
+                   href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fide.judge0.com"
+                   style="background-color: #1877f2 !important; color: white !important;"><i
+                        class="facebook icon"></i>
+                    Share on Facebook</a>
             </div>
         </div>
     </div>
 
-    <!-- TODO 添加模态登陆窗口 -->
-    <div id="login-modal" class="ui modal">
-        <div class="header" align="center">
-            <img src="./images/hbut_icon.png" height="100" />
-            <h2>Hubei University of Technology Coding Trainer Online</h2>
-        </div>
-        <div class="scrolling content" align="center">
-            <div class="ui labeled input">
-                <div class="ui label">
-                    Username
-                </div>
-                <input id="username" type="text" placeholder="username" />
-            </div>
-            <div class="ui labeled input">
-                <div class="ui label">
-                    Password
-                </div>
-                <input id="password" type="text" placeholder="password" />
-            </div>
-        </div>
-        <div class="actions">
-            <button id="register-btn" class="ui labeled icon primary basic button">
-                <i class="location arrow icon"></i>
-                REGISTER
-            </button>
-            <button id="login-btn" class="ui labeled icon primary button">
-                <i class="sign-in icon"></i>
-                LOGIN
-            </button>
-            <button id="cancel-btn" class="ui labeled icon button">
-                <i class="remove icon"></i>
-                CANCEL
-            </button>
-        </div>
-    </div>
-    <!-- END -->
+</div>
 
-    <div id="site-settings" class="ui modal">
+<div id="site-content"></div>
+
+<div id="site-modal" class="ui modal">
+    <div class="header">
         <i class="close icon"></i>
-        <div class="header">
-            <i class="cog icon"></i>
-            Settings
+        <span id="title"></span>
+    </div>
+    <div class="scrolling content"></div>
+    <div class="actions">
+        <div class="ui small labeled icon cancel button">
+            <i class="remove icon"></i>
+            Close (ESC)
         </div>
-        <div class="content">
-            <div class="ui form">
-                <div class="inline fields">
-                    <label>Editor Mode</label>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="editor-mode" value="normal" checked="checked">
-                            <label>Normal</label>
-                        </div>
+    </div>
+</div>
+
+<!-- TODO 添加模态登陆窗口 -->
+<div id="login-modal" class="ui modal">
+    <div class="header" align="center">
+        <img src="./images/hbut_icon.png" height="100"/>
+        <h2>Hubei University of Technology Coding Trainer Online</h2>
+    </div>
+    <div class="scrolling content" align="center">
+        <div class="ui labeled input">
+            <div class="ui label">
+                Username
+            </div>
+            <input id="username" type="text" placeholder="username"/>
+        </div>
+        <div class="ui labeled input">
+            <div class="ui label">
+                Password
+            </div>
+            <input id="password" type="text" placeholder="password"/>
+        </div>
+    </div>
+    <div class="actions">
+        <button id="register-btn" class="ui labeled icon primary basic button">
+            <i class="location arrow icon"></i>
+            REGISTER
+        </button>
+        <button id="login-btn" class="ui labeled icon primary button">
+            <i class="sign-in icon"></i>
+            LOGIN
+        </button>
+        <button id="cancel-btn" class="ui labeled icon button">
+            <i class="remove icon"></i>
+            CANCEL
+        </button>
+    </div>
+</div>
+<!-- END -->
+
+<div id="site-settings" class="ui modal">
+    <i class="close icon"></i>
+    <div class="header">
+        <i class="cog icon"></i>
+        Settings
+    </div>
+    <div class="content">
+        <div class="ui form">
+            <div class="inline fields">
+                <label>Editor Mode</label>
+                <div class="field">
+                    <div class="ui radio checkbox">
+                        <input type="radio" name="editor-mode" value="normal" checked="checked">
+                        <label>Normal</label>
                     </div>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="editor-mode" value="vim">
-                            <label>Vim</label>
-                        </div>
+                </div>
+                <div class="field">
+                    <div class="ui radio checkbox">
+                        <input type="radio" name="editor-mode" value="vim">
+                        <label>Vim</label>
                     </div>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="editor-mode" value="emacs">
-                            <label>Emacs</label>
-                        </div>
+                </div>
+                <div class="field">
+                    <div class="ui radio checkbox">
+                        <input type="radio" name="editor-mode" value="emacs">
+                        <label>Emacs</label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="site-footer">
-        <div id="editor-status-line"></div>
-        <span>Powered by <a href="https://microsoft.github.io/monaco-editor/">Microsoft Monaco Editor</a> and <a href="https://judge0.com/">Judge0</a>. Modified by LIUJINHANG@HBUT.EDU.CN</span>
-        <span id="status-line"></span>
-    </div>
+<div id="site-footer">
+    <div id="editor-status-line"></div>
+    <span>Powered by <a href="https://microsoft.github.io/monaco-editor/">Microsoft Monaco Editor</a>
+            and
+            <a href="https://judge0.com/">Judge0</a>. Developed by <a href=mailto:liujinhang@hbut.edu.cn>LIUJINHANG@HBUT.EDU.CN</a>.</span>
+    <span id="status-line"></span>
+</div>
 </body>
 
 </html>

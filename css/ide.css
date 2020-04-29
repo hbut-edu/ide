@@ -199,3 +199,15 @@ body {
 .no-left-padding {
     padding-left: 0;
 }
+
+/* TODO 为descriptionHtml添加滚动能力 */
+/* https://codepen.io/JoeHastings/pen/jBQOap */
+.scrollable .lm_content {
+  overflow: scroll;
+  color: #999999;
+}
+
+::-webkit-scrollbar-corner {
+	background: rgba(0, 0, 0, 0.2);
+}
+/* END */

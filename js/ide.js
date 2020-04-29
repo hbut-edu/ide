@@ -21,7 +21,6 @@ let layout;
 
 let sourceEditor;
 let stdinEditor;
-let descriptionEditor;
 let stdoutEditor;
 let stderrEditor;
 let compileOutputEditor;
@@ -37,6 +36,9 @@ let $insertTemplateBtn;
 let $runBtn;
 
 // TODO 界面元素变量定义
+let descriptionMarkdownEditor;
+let descriptionHtmlPreviewer;
+
 let $submitBtn;
 let $publishBtn;
 let $loginBtn;
@@ -70,7 +72,6 @@ let timeEnd;
 
 let messagesData;
 
-// TODO 修改布局，加入description（markdown）区域
 let layoutConfig = {
     settings: {
         showPopoutIcon: false,
@@ -97,15 +98,27 @@ let layoutConfig = {
                     {
                         type: "stack",
                         content: [
+                            // TODO 修改布局，加入descriptionMarkdown与descriptionHtml区域
                             {
                                 type: "component",
-                                componentName: "description",
-                                title: "DESCRIPTION",
+                                componentName: "descriptionHtml",
+                                title: "DESCRIPTION HTML Previewer",
+                                isClosable: false,
+                                cssClass: 'scrollable',
+                                componentState: {
+                                    readOnly: false
+                                }
+                            },
+                            {
+                                type: "component",
+                                componentName: "descriptionMarkdown",
+                                title: "DESCRIPTION Markdown Editor",
                                 isClosable: false,
                                 componentState: {
                                     readOnly: false
                                 }
                             }
+                            // END
                         ]
                     },
                     {
@@ -262,7 +275,7 @@ function packageUIToData() {
         $program["source_code"] = encode(sourceEditor.getValue());
     }
 
-    $program["description"] = encode(descriptionEditor.getValue());
+    $program["description"] = encode(descriptionMarkdownEditor.getValue());
     $program["compiler_options"] = $compilerOptions.val();
     $program["command_line_arguments"] = $commandLineArguments.val();
 
@@ -281,7 +294,9 @@ function applyDataToUI(isDrivenSelectLanguage) {
 
     stdinEditor.setValue(decode($program.stdin));
 
-    descriptionEditor.setValue(decode($program.description));
+    descriptionMarkdownEditor.setValue(decode($program.description));
+    descriptionHtmlPreviewer.html("<div style='margin: 10px; padding: 0px'>" + decode($program.description_html) + "</div>");
+
     $compilerOptions.val($program.compiler_options);
     $commandLineArguments.val($program.command_line_arguments);
 
@@ -302,7 +317,7 @@ function createNewProgram() {
     newProgram["compiler_options"] = "";
     newProgram["language_id"] = resolveLanguageId($selectLanguage.val());
     newProgram["source_code"] = encode(sources[newProgram["language_id"]]);
-    newProgram["description"] = encode(descriptionEditor.getValue());
+    newProgram["description"] = encode(descriptionMarkdownEditor.getValue());
     newProgram["compiler_options"] = "";
     newProgram["stdin"] = "";
 
@@ -584,6 +599,8 @@ function submitOrPublish() {
                     // 只有学生模式下需要重建程序下拉列表
                     if ($userProfile.user_type === 0) {
                         makeProgramMenu();
+                    }else if ($userProfile.user_type === 1){
+                        // 需要更新description
                     }
 
                 }
@@ -928,31 +945,31 @@ function resizeEditor(layoutInfo) {
     }
 }
 
-function disposeEditorModeObject() {
-    try {
-        editorModeObject.dispose();
-        editorModeObject = null;
-    } catch (ignorable) {
-    }
-}
+// function disposeEditorModeObject() {
+//     try {
+//         editorModeObject.dispose();
+//         editorModeObject = null;
+//     } catch (ignorable) {
+//     }
+// }
 
-function changeEditorMode() {
-    disposeEditorModeObject();
-
-    if (editorMode === "vim") {
-        editorModeObject = MonacoVim.initVimMode(sourceEditor, $("#editor-status-line")[0]);
-    } else if (editorMode === "emacs") {
-        let statusNode = $("#editor-status-line")[0];
-        editorModeObject = new MonacoEmacs.EmacsExtension(sourceEditor);
-        editorModeObject.onDidMarkChange(function (e) {
-            statusNode.textContent = e ? "Mark Set!" : "Mark Unset";
-        });
-        editorModeObject.onDidChangeKey(function (str) {
-            statusNode.textContent = str;
-        });
-        editorModeObject.start();
-    }
-}
+// function changeEditorMode() {
+//     disposeEditorModeObject();
+//
+//     if (editorMode === "vim") {
+//         editorModeObject = MonacoVim.initVimMode(sourceEditor, $("#editor-status-line")[0]);
+//     } else if (editorMode === "emacs") {
+//         let statusNode = $("#editor-status-line")[0];
+//         editorModeObject = new MonacoEmacs.EmacsExtension(sourceEditor);
+//         editorModeObject.onDidMarkChange(function (e) {
+//             statusNode.textContent = e ? "Mark Set!" : "Mark Unset";
+//         });
+//         editorModeObject.onDidChangeKey(function (str) {
+//             statusNode.textContent = str;
+//         });
+//         editorModeObject.start();
+//     }
+// }
 
 function resolveLanguageId(id) {
     id = parseInt(id);
@@ -1084,47 +1101,47 @@ $(document).ready(function () {
         localStorageSetItem("editorMode", editorMode);
 
         resizeEditor(sourceEditor.getLayoutInfo());
-        changeEditorMode();
+        // changeEditorMode();
 
         sourceEditor.focus();
     });
 
     $statusLine = $("#status-line");
 
-    $("body").keydown(function (e) {
-        var keyCode = e.keyCode || e.which;
-        if (keyCode == 120) { // F9
-            e.preventDefault();
-            run();
-        } else if (keyCode == 119) { // F8
-            e.preventDefault();
-            var url = prompt("Enter URL of Judge0 API:", apiUrl);
-            if (url != null) {
-                url = url.trim();
-            }
-            if (url != null && url != "") {
-                apiUrl = url;
-                localStorageSetItem("api-url", apiUrl);
-                showApiUrl();
-            }
-        } else if (keyCode == 118) { // F7
-            e.preventDefault();
-            wait = !wait;
-            localStorageSetItem("wait", wait);
-            alert(`Submission wait is ${wait ? "ON. Enjoy" : "OFF"}.`);
-        } else if (event.ctrlKey && keyCode == 83) { // Ctrl+S
-            e.preventDefault();
-            save();
-        } else if (event.ctrlKey && keyCode == 107) { // Ctrl++
-            e.preventDefault();
-            fontSize += 1;
-            editorsUpdateFontSize(fontSize);
-        } else if (event.ctrlKey && keyCode == 109) { // Ctrl+-
-            e.preventDefault();
-            fontSize -= 1;
-            editorsUpdateFontSize(fontSize);
-        }
-    });
+    // $("body").keydown(function (e) {
+    //     var keyCode = e.keyCode || e.which;
+    //     if (keyCode == 120) { // F9
+    //         e.preventDefault();
+    //         run();
+    //     } else if (keyCode == 119) { // F8
+    //         e.preventDefault();
+    //         var url = prompt("Enter URL of Judge0 API:", apiUrl);
+    //         if (url != null) {
+    //             url = url.trim();
+    //         }
+    //         if (url != null && url != "") {
+    //             apiUrl = url;
+    //             localStorageSetItem("api-url", apiUrl);
+    //             showApiUrl();
+    //         }
+    //     } else if (keyCode == 118) { // F7
+    //         e.preventDefault();
+    //         wait = !wait;
+    //         localStorageSetItem("wait", wait);
+    //         alert(`Submission wait is ${wait ? "ON. Enjoy" : "OFF"}.`);
+    //     } else if (event.ctrlKey && keyCode == 83) { // Ctrl+S
+    //         e.preventDefault();
+    //         save();
+    //     } else if (event.ctrlKey && keyCode == 107) { // Ctrl++
+    //         e.preventDefault();
+    //         fontSize += 1;
+    //         editorsUpdateFontSize(fontSize);
+    //     } else if (event.ctrlKey && keyCode == 109) { // Ctrl+-
+    //         e.preventDefault();
+    //         fontSize -= 1;
+    //         editorsUpdateFontSize(fontSize);
+    //     }
+    // });
 
     $("select.dropdown").dropdown();
     $(".ui.dropdown").dropdown();
@@ -1137,11 +1154,13 @@ $(document).ready(function () {
     showApiUrl();
     loadMessages();
 
-    require(["vs/editor/editor.main", "monaco-vim", "monaco-emacs"], function (ignorable, MVim, MEmacs) {
+    // require(["vs/editor/editor.main", "monaco-vim", "monaco-emacs"], function (ignorable, MVim, MEmacs) {
+    require.config({ paths: { 'vs': 'js/monaco-editor/min/vs' }});
+    require(["vs/editor/editor.main"], function () {
         layout = new GoldenLayout(layoutConfig, $("#site-content"));
 
-        MonacoVim = MVim;
-        MonacoEmacs = MEmacs;
+        // MonacoVim = MVim;
+        // MonacoEmacs = MEmacs;
 
         layout.registerComponent("source", function (container, state) {
             sourceEditor = monaco.editor.create(container.getElement()[0], {
@@ -1156,18 +1175,19 @@ $(document).ready(function () {
                 rulers: [80, 120]
             });
 
-            changeEditorMode();
+            // changeEditorMode();
 
             sourceEditor.getModel().onDidChangeContent(function (e) {
                 currentLanguageId = parseInt($selectLanguage.val());
-                isEditorDirty = sourceEditor.getValue() != sources[currentLanguageId];
+                isEditorDirty = sourceEditor.getValue() !== sources[currentLanguageId];
             });
 
             sourceEditor.onDidLayoutChange(resizeEditor);
         });
 
-        layout.registerComponent("description", function (container, state) {
-            descriptionEditor = monaco.editor.create(container.getElement()[0], {
+        // TODO 注册description与descriptionMarkdown的组件
+        layout.registerComponent("descriptionMarkdown", function (container, state) {
+            descriptionMarkdownEditor = monaco.editor.create(container.getElement()[0], {
                 automaticLayout: true,
                 theme: "vs-dark",
                 scrollBeyondLastLine: false,
@@ -1178,6 +1198,12 @@ $(document).ready(function () {
                 }
             });
         });
+
+        layout.registerComponent("descriptionHtml", function (container, state) {
+            descriptionHtmlPreviewer = container.getElement();
+            descriptionHtmlPreviewer.html("");
+        });
+        // END
 
         layout.registerComponent("stdin", function (container, state) {
             stdinEditor = monaco.editor.create(container.getElement()[0], {
@@ -1281,6 +1307,11 @@ $(document).ready(function () {
             }
             $("#site-navigation").css("border-bottom", "1px solid black");
             sourceEditor.focus();
+        });
+
+        layout.on('itemCreated', function (item) {
+            if (item.config.cssClass)
+                item.element.addClass(item.config.cssClass);
         });
 
         layout.init();

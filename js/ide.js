@@ -10,12 +10,8 @@ const check_timeout = 200;
 
 let blinkStatusLine = ((localStorageGetItem("blink") || "true") === "true");
 let editorMode = localStorageGetItem("editorMode") || "normal";
-let editorModeObject = null;
 
 let fontSize = 14;
-
-let MonacoVim;
-let MonacoEmacs;
 
 let layout;
 
@@ -295,7 +291,9 @@ function applyDataToUI(isDrivenSelectLanguage) {
     stdinEditor.setValue(decode($program.stdin));
 
     descriptionMarkdownEditor.setValue(decode($program.description));
-    descriptionHtmlPreviewer.html("<div style='margin: 10px; padding: 0px'>" + decode($program.description_html) + "</div>");
+
+    // descriptionHtmlPreviewer.html("<div style='margin: 10px; padding: 0px'>" + decode($program.description_html) + "</div>");
+    // descriptionHtmlPreviewer.html(decode($program.description_html));
 
     $compilerOptions.val($program.compiler_options);
     $commandLineArguments.val($program.command_line_arguments);
@@ -640,44 +638,6 @@ function localStorageGetItem(key) {
     }
 }
 
-function showMessages() {
-    let width = $about.offset().left - parseFloat($about.css("padding-left")) -
-        $navigationMessage.parent().offset().left - parseFloat($navigationMessage.parent().css("padding-left")) - 5;
-
-    if (width < 200 || messagesData === undefined) {
-        return;
-    }
-
-    let messages = messagesData["messages"];
-
-    $navigationMessage.css("animation-duration", messagesData["duration"]);
-    $navigationMessage.parent().width(width - 5);
-
-    let combinedMessage = "";
-    for (let i = 0; i < messages.length; ++i) {
-        combinedMessage += `${messages[i]}`;
-        if (i !== messages.length - 1) {
-            combinedMessage += "&nbsp".repeat(Math.min(200, messages[i].length));
-        }
-    }
-
-    $navigationMessage.html(combinedMessage);
-}
-
-function loadMessages() {
-    $.ajax({
-        url: `https://minio.judge0.com/public/messages.json?${Date.now()}`,
-        type: "GET",
-        headers: {
-            "Accept": "application/json"
-        },
-        success: function (data) {
-            messagesData = data;
-            showMessages();
-        }
-    });
-}
-
 function showApiUrl() {
     $("#api-url").attr("href", apiUrl);
 }
@@ -992,7 +952,6 @@ function editorsUpdateFontSize(fontSize) {
 
 $(window).resize(function () {
     layout.updateSize();
-    showMessages();
 });
 
 $(document).ready(function () {
@@ -1152,7 +1111,6 @@ $(document).ready(function () {
     });
 
     showApiUrl();
-    loadMessages();
 
     // require(["vs/editor/editor.main", "monaco-vim", "monaco-emacs"], function (ignorable, MVim, MEmacs) {
     require.config({ paths: { 'vs': 'js/monaco-editor/min/vs' }});
@@ -1204,6 +1162,7 @@ $(document).ready(function () {
             descriptionHtmlPreviewer.html("");
         });
         // END
+
 
         layout.registerComponent("stdin", function (container, state) {
             stdinEditor = monaco.editor.create(container.getElement()[0], {
@@ -1315,6 +1274,7 @@ $(document).ready(function () {
         });
 
         layout.init();
+
     });
 
 });

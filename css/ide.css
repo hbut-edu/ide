@@ -202,9 +202,14 @@ body {
 
 /* TODO 为descriptionHtml添加滚动能力 */
 /* https://codepen.io/JoeHastings/pen/jBQOap */
-.scrollable .lm_content {
-  overflow: scroll;
-  color: #999999;
+/*.scrollable .lm_content {*/
+/*  overflow: scroll;*/
+/*  color: #999999;*/
+/*}*/
+
+body .lm_content{
+    overflow: scroll;
+    color: #999999;
 }
 
 ::-webkit-scrollbar-corner {

@@ -57,6 +57,9 @@ let $programs;
 
 let $selectedProgramKey;
 let $prevLanguageId;
+
+// TODO Markdown-it变量
+let $md;
 // END
 
 let $navigationMessage;
@@ -97,10 +100,9 @@ let layoutConfig = {
                             // TODO 修改布局，加入descriptionMarkdown与descriptionHtml区域
                             {
                                 type: "component",
-                                componentName: "descriptionHtml",
+                                componentName: "descriptionHtmlPreview",
                                 title: "DESCRIPTION HTML Previewer",
                                 isClosable: false,
-                                cssClass: 'scrollable',
                                 componentState: {
                                     readOnly: false
                                 }
@@ -292,8 +294,7 @@ function applyDataToUI(isDrivenSelectLanguage) {
 
     descriptionMarkdownEditor.setValue(decode($program.description));
 
-    // descriptionHtmlPreviewer.html("<div style='margin: 10px; padding: 0px'>" + decode($program.description_html) + "</div>");
-    // descriptionHtmlPreviewer.html(decode($program.description_html));
+    refreshHtmlPreview();
 
     $compilerOptions.val($program.compiler_options);
     $commandLineArguments.val($program.command_line_arguments);
@@ -373,6 +374,9 @@ function doLogin() {
             alert(jqXHR.responseJSON['message']);
         },
     });
+
+    // editormd("editormd", { path : "./js/editor.mb/lib/" });
+
 }
 
 // TODO 注册逻辑
@@ -905,6 +909,16 @@ function resizeEditor(layoutInfo) {
     }
 }
 
+// TODO html preview窗口的内容
+function refreshHtmlPreview(){
+    descriptionHtmlPreviewer.html(
+        "<div style='width: 100%; height: 100%; overflow: scroll;'>\n" +
+        "  <div style='margin: 10px; padding: 0px; color: #999999;'>\n" +
+        $md.render(descriptionMarkdownEditor.getValue()) + "\n" +
+        "  </div>\n" +
+        "</div>\n");
+}
+
 // function disposeEditorModeObject() {
 //     try {
 //         editorModeObject.dispose();
@@ -1155,11 +1169,13 @@ $(document).ready(function () {
                     enabled: false
                 }
             });
+
+            descriptionMarkdownEditor.onDidBlurEditorWidget(refreshHtmlPreview);
         });
 
-        layout.registerComponent("descriptionHtml", function (container, state) {
+        layout.registerComponent("descriptionHtmlPreview", function (container, state) {
             descriptionHtmlPreviewer = container.getElement();
-            descriptionHtmlPreviewer.html("");
+            $md = window.markdownit();
         });
         // END
 
@@ -1190,7 +1206,7 @@ $(document).ready(function () {
             });
 
             container.on("tab", function (tab) {
-                tab.element.append("<span id=\"stdout-dot\" class=\"dot\" hidden></span>");
+                tab.element.append("<span id='stdout-dot' class='dot' hidden></span>");
                 tab.element.on("mousedown", function (e) {
                     e.target.closest(".lm_tab").children[3].hidden = true;
                 });
@@ -1210,7 +1226,7 @@ $(document).ready(function () {
             });
 
             container.on("tab", function (tab) {
-                tab.element.append("<span id=\"stderr-dot\" class=\"dot\" hidden></span>");
+                tab.element.append("<span id='stderr-dot' class='dot' hidden></span>");
                 tab.element.on("mousedown", function (e) {
                     e.target.closest(".lm_tab").children[3].hidden = true;
                 });
@@ -1266,11 +1282,6 @@ $(document).ready(function () {
             }
             $("#site-navigation").css("border-bottom", "1px solid black");
             sourceEditor.focus();
-        });
-
-        layout.on('itemCreated', function (item) {
-            if (item.config.cssClass)
-                item.element.addClass(item.config.cssClass);
         });
 
         layout.init();

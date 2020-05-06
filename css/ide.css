@@ -200,19 +200,12 @@ body {
     padding-left: 0;
 }
 
-/* TODO 为descriptionHtml添加滚动能力 */
-/* https://codepen.io/JoeHastings/pen/jBQOap */
-/*.scrollable .lm_content {*/
-/*  overflow: scroll;*/
-/*  color: #999999;*/
-/*}*/
-
-body .lm_content{
-    overflow: scroll;
-    color: #999999;
+/* TODO 定义滚动条样式 未完成 */
+::-webkit-scrollbar {
+    display: block;
 }
 
-::-webkit-scrollbar-corner {
-	background: rgba(0, 0, 0, 0.2);
+::-webkit-scrollbar-corner{
+    display: none;
 }
 /* END */

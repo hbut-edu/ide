@@ -242,9 +242,7 @@ function encodeProgramKey(program_no, language_id) {
 function decodeProgramKey(programKey) {
 
     if (
-        programKey !== undefined &&
-        programKey !== null &&
-        programKey.trim() !== "" &&
+        !isLogicEmpty(programKey) &&
         programKey.indexOf("/") !== -1) {
         return programKey.split("/");
     } else {
@@ -357,6 +355,7 @@ function doLogin() {
 
                 $("#submit-btn-panel").show();
                 $("#publish-btn-panel").hide();
+                // TODO 根据用户类型显示或隐藏markdown编辑器
 
             } else if ($userProfile.user_type === 1) {
 
@@ -501,7 +500,6 @@ function makeProgramMenuItem() {
     // 当鼠标悬停的时候储存当前的修改到$program
     $programMenu.focus(function () {
         $selectedProgramKey = $selectedProgramKeyInput.val();
-        console.log($selectedProgramKey);
         if (!isLogicEmpty($selectedProgramKey)) {
             packageUIToData();
             $programs.set($selectedProgramKey, $program);

@@ -814,12 +814,19 @@ function loadSavedSource() {
 
 function run() {
 
-    if (sourceEditor.getValue().trim() === "") {
+    if (isLogicEmpty(sourceEditor.getValue())) {
         showError("Error", "Source code can't be empty!");
         return;
-    } else {
-        $runBtn.addClass("loading");
     }
+
+    // TODO 登陆后，不再允许playground run
+    if($userProfile !== undefined && isLogicEmpty($selectedProgramKeyInput.val())){
+        showError("Error", "Select your program first!");
+        return;
+    }
+    // END
+
+    $runBtn.addClass("loading");
 
     document.getElementById("stdout-dot").hidden = true;
     document.getElementById("stderr-dot").hidden = true;
@@ -1139,8 +1146,9 @@ $(document).ready(function () {
                 scrollBeyondLastLine: true,
                 readOnly: state.readOnly,
                 language: "cpp",
+                fontSize: 20,
                 minimap: {
-                    enabled: false
+                    enabled: true
                 },
                 rulers: [80, 120]
             });
@@ -1163,8 +1171,9 @@ $(document).ready(function () {
                 scrollBeyondLastLine: false,
                 readOnly: state.readOnly,
                 language: "markdown",
+                fontSize: 20,
                 minimap: {
-                    enabled: false
+                    enabled: true
                 }
             });
 
@@ -1185,6 +1194,7 @@ $(document).ready(function () {
                 scrollBeyondLastLine: false,
                 readOnly: state.readOnly,
                 language: "plaintext",
+                fontSize: 20,
                 minimap: {
                     enabled: false
                 }
@@ -1198,6 +1208,7 @@ $(document).ready(function () {
                 scrollBeyondLastLine: false,
                 readOnly: state.readOnly,
                 language: "plaintext",
+                fontSize: 20,
                 minimap: {
                     enabled: false
                 }
@@ -1218,6 +1229,7 @@ $(document).ready(function () {
                 scrollBeyondLastLine: false,
                 readOnly: state.readOnly,
                 language: "plaintext",
+                fontSize: 20,
                 minimap: {
                     enabled: false
                 }
@@ -1238,13 +1250,14 @@ $(document).ready(function () {
                 scrollBeyondLastLine: false,
                 readOnly: state.readOnly,
                 language: "plaintext",
+                fontSize: 20,
                 minimap: {
                     enabled: false
                 }
             });
 
             container.on("tab", function (tab) {
-                tab.element.append("<span id=\"compile-output-dot\" class=\"dot\" hidden></span>");
+                tab.element.append("<span id='compile-output-dot' class='dot' hidden></span>");
                 tab.element.on("mousedown", function (e) {
                     e.target.closest(".lm_tab").children[3].hidden = true;
                 });
@@ -1258,13 +1271,14 @@ $(document).ready(function () {
                 scrollBeyondLastLine: false,
                 readOnly: state.readOnly,
                 language: "plaintext",
+                fontSize: 20,
                 minimap: {
                     enabled: false
                 }
             });
 
             container.on("tab", function (tab) {
-                tab.element.append("<span id=\"sandbox-message-dot\" class=\"dot\" hidden></span>");
+                tab.element.append("<span id='sandbox-message-dot' class='dot' hidden></span>");
                 tab.element.on("mousedown", function (e) {
                     e.target.closest(".lm_tab").children[3].hidden = true;
                 });
@@ -1289,7 +1303,7 @@ $(document).ready(function () {
 });
 
 // Template Sources
-var assemblySource = "\
+const assemblySource = "\
 section	.text\n\
     global _start\n\
 \n\
@@ -1312,11 +1326,11 @@ msg	db 'hello, world', 0xa\n\
 len	equ	$ - msg\n\
 ";
 
-var bashSource = "echo \"hello, world\"";
+const bashSource = "echo \"hello, world\"";
 
-var basicSource = "PRINT \"hello, world\"";
+const basicSource = "PRINT \"hello, world\"";
 
-var cSource = "\
+const cSource = "\
 #include <stdio.h>\n\
 \n\
 int main(void) {\n\
@@ -1325,7 +1339,7 @@ int main(void) {\n\
 }\n\
 ";
 
-var csharpSource = "\
+const csharpSource = "\
 public class Hello {\n\
     public static void Main() {\n\
         System.Console.WriteLine(\"hello, world\");\n\
@@ -1333,7 +1347,7 @@ public class Hello {\n\
 }\n\
 ";
 
-var cppSource = "\
+const cppSource = "\
 #include <iostream>\n\
 \n\
 int main() {\n\
@@ -1342,9 +1356,9 @@ int main() {\n\
 }\n\
 ";
 
-var lispSource = "(write-line \"hello, world\")";
+const lispSource = "(write-line \"hello, world\")";
 
-var dSource = "\
+const dSource = "\
 import std.stdio;\n\
 \n\
 void main()\n\
@@ -1353,14 +1367,14 @@ void main()\n\
 }\n\
 ";
 
-var elixirSource = "IO.puts \"hello, world\"";
+const elixirSource = "IO.puts \"hello, world\"";
 
-var erlangSource = "\
+const erlangSource = "\
 main(_) ->\n\
     io:fwrite(\"hello, world\\n\").\n\
 ";
 
-var executableSource = "\
+const executableSource = "\
 Judge0 IDE assumes that content of executable is Base64 encoded.\n\
 \n\
 This means that you should Base64 encode content of your binary,\n\
@@ -1372,13 +1386,13 @@ Content of compiled binary is Base64 encoded and used as source code.\n\
 https://ide.judge0.com/?kS_f\n\
 ";
 
-var fortranSource = "\
+const fortranSource = "\
 program main\n\
     print *, \"hello, world\"\n\
 end\n\
 ";
 
-var goSource = "\
+const goSource = "\
 package main\n\
 \n\
 import \"fmt\"\n\
@@ -1388,9 +1402,9 @@ func main() {\n\
 }\n\
 ";
 
-var haskellSource = "main = putStrLn \"hello, world\"";
+const haskellSource = "main = putStrLn \"hello, world\"";
 
-var javaSource = "\
+const javaSource = "\
 public class Main {\n\
     public static void main(String[] args) {\n\
         System.out.println(\"hello, world\");\n\
@@ -1398,53 +1412,53 @@ public class Main {\n\
 }\n\
 ";
 
-var javaScriptSource = "console.log(\"hello, world\");";
+const javaScriptSource = "console.log(\"hello, world\");";
 
-var luaSource = "print(\"hello, world\")";
+const luaSource = "print(\"hello, world\")";
 
-var nimSource = "\
+const nimSource = "\
 # On the Judge0 IDE, Nim is automatically\n\
 # updated every day to the latest stable version.\n\
 echo \"hello, world\"\n\
 ";
 
-var ocamlSource = "print_endline \"hello, world\"";
+const ocamlSource = "print_endline \"hello, world\"";
 
-var octaveSource = "printf(\"hello, world\\n\");";
+const octaveSource = "printf(\"hello, world\\n\");";
 
-var pascalSource = "\
+const pascalSource = "\
 program Hello;\n\
 begin\n\
     writeln ('hello, world')\n\
 end.\n\
 ";
 
-var phpSource = "\
+const phpSource = "\
 <?php\n\
 print(\"hello, world\\n\");\n\
 ?>\n\
 ";
 
-var plainTextSource = "hello, world\n";
+const plainTextSource = "hello, world\n";
 
-var prologSource = "\
+const prologSource = "\
 :- initialization(main).\n\
 main :- write('hello, world\\n').\n\
 ";
 
-var pythonSource = "print(\"hello, world\")";
+const pythonSource = "print(\"hello, world\")";
 
-var rubySource = "puts \"hello, world\"";
+const rubySource = "puts \"hello, world\"";
 
-var rustSource = "\
+const rustSource = "\
 fn main() {\n\
     println!(\"hello, world\");\n\
 }\n\
 "
 
-var typescriptSource = "console.log(\"hello, world\");";
+const typescriptSource = "console.log(\"hello, world\");";
 
-var vSource = "\
+const vSource = "\
 // On the Judge0 IDE, V is automatically\n\
 // updated every hour to the latest version.\n\
 fn main() {\n\
@@ -1452,7 +1466,7 @@ fn main() {\n\
 }\n\
 ";
 
-var sources = {
+const sources = {
     45: assemblySource,
     46: bashSource,
     47: basicSource,
@@ -1489,7 +1503,7 @@ var sources = {
     1001: vSource
 };
 
-var fileNames = {
+const fileNames = {
     45: "main.asm",
     46: "script.sh",
     47: "main.bas",
@@ -1526,12 +1540,12 @@ var fileNames = {
     1001: "main.v"
 };
 
-var languageIdTable = {
+const languageIdTable = {
     1000: 1,
     1001: 1
 }
 
-var languageApiUrlTable = {
+const languageApiUrlTable = {
     1000: "https://nim.api.judge0.com",
     1001: "https://vlang.api.judge0.com"
 }

@@ -1,11 +1,10 @@
 // TODO 修改代码运行服务器地址，添加附加功能的web服务地址
-let defaultUrl = localStorageGetItem("api-url") || "http://10.0.0.3:3000";
-let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://10.0.0.3:4321";
+let defaultUrl = localStorageGetItem("api-url") || "http://119.3.159.221:3000";
+let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://119.3.159.221";
 // END
 
 let apiUrl = defaultUrl;
 let wait = localStorageGetItem("wait") || false;
-const pbUrl = "https://pb.judge0.com";
 const check_timeout = 200;
 
 let blinkStatusLine = ((localStorageGetItem("blink") || "true") === "true");
@@ -69,8 +68,6 @@ let $statusLine;
 let timeStart;
 let timeEnd;
 
-let messagesData;
-
 let layoutConfig = {
     settings: {
         showPopoutIcon: false,
@@ -101,7 +98,7 @@ let layoutConfig = {
                             {
                                 type: "component",
                                 componentName: "descriptionHtmlPreview",
-                                title: "DESCRIPTION HTML Previewer",
+                                title: "DESCRIPTION",
                                 isClosable: false,
                                 componentState: {
                                     readOnly: false
@@ -216,19 +213,22 @@ Date.prototype.Format = function (fmt) {
     return fmt;
 };
 
-// TODO 逻辑空值检测
-function isLogicEmpty(target_object) {
-    return target_object === undefined ||
-        target_object === null ||
-        target_object.trim() === "";
+// TODO 逻辑空字符串检测
+function isLogicEmptyString(targetString) {
+    return isLogicEmptyObject(targetString) || targetString.trim() === "";
 }
 
-// TODO 显示模态窗口
+// TODO 逻辑空对象检测
+function isLogicEmptyObject(targetString) {
+    return targetString === undefined || targetString === null;
+}
+
+// TODO 显示登陆模态窗口
 function showLoginModal() {
     $("#login-modal").modal("show");
 }
 
-// TODO 隐藏模态窗口
+// TODO 隐藏登陆模态窗口
 function hideLoginModal() {
     $("#login-modal").modal("hide");
 }
@@ -242,7 +242,7 @@ function encodeProgramKey(program_no, language_id) {
 function decodeProgramKey(programKey) {
 
     if (
-        !isLogicEmpty(programKey) &&
+        !isLogicEmptyString(programKey) &&
         programKey.indexOf("/") !== -1) {
         return programKey.split("/");
     } else {
@@ -254,11 +254,14 @@ function decodeProgramKey(programKey) {
 // TODO 将界面上的数据打包到PROGRAM里面
 function packageUIToData() {
 
-    if ($program === undefined || $program === null) {
+    if (isLogicEmptyObject($program)) {
         $program = {};
     }
 
-    if ($userProfile !== undefined && $userProfile !== null) {
+    if (!isLogicEmptyObject($userProfile) &&
+        !isLogicEmptyObject($selectedProgramKeyInput) &&
+        !isLogicEmptyString($selectedProgramKeyInput.val())
+    ) {
         $program["program_no"] = decodeProgramKey($selectedProgramKeyInput.val())[0];
     }
 
@@ -329,8 +332,8 @@ function doLogin() {
     $username = $("#username");
     $password = $("#password");
 
-    if (isLogicEmpty($username.val()) || isLogicEmpty($password.val())) {
-        alert("username and password can not be empty.");
+    if (isLogicEmptyString($username.val()) || isLogicEmptyString($password.val())) {
+        showError("Login error","Username and password can not be empty.");
         return;
     }
 
@@ -369,12 +372,8 @@ function doLogin() {
             hideLoginModal();
 
         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            alert(jqXHR.responseJSON['message']);
-        },
+        error: handleRunError
     });
-
-    // editormd("editormd", { path : "./js/editor.mb/lib/" });
 
 }
 
@@ -386,8 +385,8 @@ function doRegister() {
     $username = $("#username");
     $password = $("#password");
 
-    if (isLogicEmpty($username.val()) || isLogicEmpty($password.val())) {
-        alert("username and password can not be empty.");
+    if (isLogicEmptyString($username.val()) || isLogicEmptyString($password.val())) {
+        showError("Register error","Username and password can not be empty.");
         return;
     }
 
@@ -403,9 +402,7 @@ function doRegister() {
             success: function (data, textStatus, jqXHR) {
                 alert(data.message)
             },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert(jqXHR.responseJSON['message'])
-            }
+            error: handleRunError
         }
     );
 }
@@ -438,7 +435,7 @@ function makeProgramMenu() {
 
             // 如果程序下拉列表尚未作出选择，那么在载入programs项后保持selectedProgramKey为空值。
             // 如果程序下拉列表曾经作出过选择，在重载programs后重新设定当前值。
-            if (!isLogicEmpty($selectedProgramKey)) {
+            if (!isLogicEmptyString($selectedProgramKey)) {
                 let key = encodeProgramKey($program.program_no, $program.language_id);
                 $program = $programs.get(key);
                 $selectedProgramKeyInput[0].value = key;
@@ -500,7 +497,7 @@ function makeProgramMenuItem() {
     // 当鼠标悬停的时候储存当前的修改到$program
     $programMenu.focus(function () {
         $selectedProgramKey = $selectedProgramKeyInput.val();
-        if (!isLogicEmpty($selectedProgramKey)) {
+        if (!isLogicEmptyString($selectedProgramKey)) {
             packageUIToData();
             $programs.set($selectedProgramKey, $program);
         }
@@ -511,7 +508,7 @@ function makeProgramMenuItem() {
     $selectedProgramKeyInput.trigger('change');
     $selectedProgramKeyInput.change(function (e) {
         $selectedProgramKey = $selectedProgramKeyInput.val();
-        if (!isLogicEmpty($selectedProgramKey)) {
+        if (!isLogicEmptyString($selectedProgramKey)) {
             $program = $programs.get($selectedProgramKey);
             $prevLanguageId = $program.language_id;
             applyDataToUI(true);
@@ -519,7 +516,7 @@ function makeProgramMenuItem() {
     });
 
     // 调整下拉列表的显示部分
-    if ($userProfile.user_type === 0 && !isLogicEmpty($selectedProgramKey)) {
+    if ($userProfile.user_type === 0 && !isLogicEmptyString($selectedProgramKey)) {
         $programHeader = $("#program-header");
         $programHeader.html("");
         let program = $programs.get($selectedProgramKey);
@@ -545,12 +542,23 @@ function makeProgramMenuItem() {
 // TODO 提交与发布的按钮逻辑
 function submitOrPublish() {
 
-    if ($userProfile === undefined || $userProfile === null) {
+    if (isLogicEmptyObject($userProfile)) {
         showError("Error", "Please login first.");
         return;
     }
 
-    if (sourceEditor.getValue().trim() === "") {
+    // TODO 登陆后，不再允许playground submit与publish
+    if(
+        !isLogicEmptyObject($userProfile) &&
+        (!isLogicEmptyObject($selectedProgramKeyInput) && isLogicEmptyString($selectedProgramKeyInput.val())
+        )
+    ){
+        showError("Error", "Select your program first!");
+        return;
+    }
+    // END
+
+    if (isLogicEmptyString(sourceEditor.getValue())) {
         showError("Error", "Source code can't be empty!");
         return;
     }
@@ -663,13 +671,13 @@ function handleResult(data) {
     timeEnd = performance.now();
     console.log("It took " + (timeEnd - timeStart) + " ms to get submission result.");
 
-    var status = data.status;
-    var stdout = decode(data.stdout);
-    var stderr = decode(data.stderr);
-    var compile_output = decode(data.compile_output);
-    var sandbox_message = decode(data.message);
-    var time = (data.time === null ? "-" : data.time + "s");
-    var memory = (data.memory === null ? "-" : data.memory + "KB");
+    let status = data.status;
+    let stdout = decode(data.stdout);
+    let stderr = decode(data.stderr);
+    let compile_output = decode(data.compile_output);
+    let sandbox_message = decode(data.message);
+    let time = (data.time === null ? "-" : data.time + "s");
+    let memory = (data.memory === null ? "-" : data.memory + "KB");
 
     $statusLine.html(`${status.description}, ${time}, ${memory}`);
 
@@ -715,112 +723,24 @@ function handleResult(data) {
     $runBtn.removeClass("loading");
 }
 
-function getIdFromURI() {
-    return location.search.substr(1).trim();
-}
-
-function save() {
-    let content = JSON.stringify({
-        source_code: encode(sourceEditor.getValue()),
-        language_id: $selectLanguage.val(),
-        compiler_options: $compilerOptions.val(),
-        command_line_arguments: $commandLineArguments.val(),
-        stdin: encode(stdinEditor.getValue()),
-        stdout: encode(stdoutEditor.getValue()),
-        stderr: encode(stderrEditor.getValue()),
-        compile_output: encode(compileOutputEditor.getValue()),
-        sandbox_message: encode(sandboxMessageEditor.getValue()),
-        status_line: encode($statusLine.html())
-    });
-    let filename = "judge0-ide.json";
-    let data = {
-        content: content,
-        filename: filename
-    };
-
-    $.ajax({
-        url: pbUrl,
-        type: "POST",
-        async: true,
-        headers: {
-            "Accept": "application/json"
-        },
-        data: data,
-        success: function (data, textStatus, jqXHR) {
-            if (getIdFromURI() !== data["short"]) {
-                window.history.replaceState(null, null, location.origin + location.pathname + "?" + data["short"]);
-            }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            handleError(jqXHR, textStatus, errorThrown);
-        }
-    });
-}
-
 function downloadSource() {
     let value = parseInt($selectLanguage.val());
     download(sourceEditor.getValue(), fileNames[value], "text/plain");
 }
 
-function loadSavedSource() {
-    let snippet_id = getIdFromURI();
-
-    if (snippet_id.length === 36) {
-        $.ajax({
-            url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
-            type: "GET",
-            success: function (data, textStatus, jqXHR) {
-                sourceEditor.setValue(decode(data["source_code"]));
-                $selectLanguage.dropdown("set selected", data["language_id"]);
-                $compilerOptions.val(data["compiler_options"]);
-                $commandLineArguments.val(data["command_line_arguments"]);
-                stdinEditor.setValue(decode(data["stdin"]));
-                stdoutEditor.setValue(decode(data["stdout"]));
-                stderrEditor.setValue(decode(data["stderr"]));
-                compileOutputEditor.setValue(decode(data["compile_output"]));
-                sandboxMessageEditor.setValue(decode(data["message"]));
-                let time = (data.time === null ? "-" : data.time + "s");
-                let memory = (data.memory === null ? "-" : data.memory + "KB");
-                $statusLine.html(`${data.status.description}, ${time}, ${memory}`);
-                changeEditorLanguage();
-            },
-            error: handleRunError
-        });
-    } else if (snippet_id.length === 4) {
-        $.ajax({
-            url: pbUrl + "/" + snippet_id + ".json",
-            type: "GET",
-            success: function (data, textStatus, jqXHR) {
-                sourceEditor.setValue(decode(data["source_code"]));
-                $selectLanguage.dropdown("set selected", data["language_id"]);
-                $compilerOptions.val(data["compiler_options"]);
-                $commandLineArguments.val(data["command_line_arguments"]);
-                stdinEditor.setValue(decode(data["stdin"]));
-                stdoutEditor.setValue(decode(data["stdout"]));
-                stderrEditor.setValue(decode(data["stderr"]));
-                compileOutputEditor.setValue(decode(data["compile_output"]));
-                sandboxMessageEditor.setValue(decode(data["sandbox_message"]));
-                $statusLine.html(decode(data["status_line"]));
-                changeEditorLanguage();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                showError("Not Found", "Code not found!");
-                window.history.replaceState(null, null, location.origin + location.pathname);
-                loadRandomLanguage();
-            }
-        });
-    }
-}
-
 function run() {
 
-    if (isLogicEmpty(sourceEditor.getValue())) {
+    if (isLogicEmptyString(sourceEditor.getValue())) {
         showError("Error", "Source code can't be empty!");
         return;
     }
 
     // TODO 登陆后，不再允许playground run
-    if($userProfile !== undefined && isLogicEmpty($selectedProgramKeyInput.val())){
+    if(
+        !isLogicEmptyObject($userProfile) &&
+        (!isLogicEmptyObject($selectedProgramKeyInput) && isLogicEmptyString($selectedProgramKeyInput.val())
+        )
+    ){
         showError("Error", "Select your program first!");
         return;
     }
@@ -895,17 +815,6 @@ function insertTemplate() {
     changeEditorLanguage();
 }
 
-function loadRandomLanguage() {
-    let values = [];
-    for (let i = 0; i < $selectLanguage[0].options.length; ++i) {
-        values.push($selectLanguage[0].options[i].value);
-    }
-    $selectLanguage.dropdown("set selected", values[Math.floor(Math.random() * $selectLanguage[0].length)]);
-    apiUrl = resolveApiUrl($selectLanguage.val());
-    showApiUrl();
-    insertTemplate();
-}
-
 function resizeEditor(layoutInfo) {
     if (editorMode !== "normal") {
         var statusLineHeight = $("#editor-status-line").height();
@@ -923,32 +832,6 @@ function refreshHtmlPreview(){
         "  </div>\n" +
         "</div>\n");
 }
-
-// function disposeEditorModeObject() {
-//     try {
-//         editorModeObject.dispose();
-//         editorModeObject = null;
-//     } catch (ignorable) {
-//     }
-// }
-
-// function changeEditorMode() {
-//     disposeEditorModeObject();
-//
-//     if (editorMode === "vim") {
-//         editorModeObject = MonacoVim.initVimMode(sourceEditor, $("#editor-status-line")[0]);
-//     } else if (editorMode === "emacs") {
-//         let statusNode = $("#editor-status-line")[0];
-//         editorModeObject = new MonacoEmacs.EmacsExtension(sourceEditor);
-//         editorModeObject.onDidMarkChange(function (e) {
-//             statusNode.textContent = e ? "Mark Set!" : "Mark Unset";
-//         });
-//         editorModeObject.onDidChangeKey(function (str) {
-//             statusNode.textContent = str;
-//         });
-//         editorModeObject.start();
-//     }
-// }
 
 function resolveLanguageId(id) {
     id = parseInt(id);
@@ -1037,7 +920,7 @@ $(document).ready(function () {
         if ($userProfile !== undefined && $userProfile !== null) {
 
             $selectedProgramKey = $selectedProgramKeyInput.val();
-            if (!isLogicEmpty($selectedProgramKey)) {
+            if (!isLogicEmptyString($selectedProgramKey)) {
 
                 let prevKey = encodeProgramKey($program.program_no, $prevLanguageId);
                 let currentkey = encodeProgramKey($program.program_no, $selectLanguage.val());
@@ -1086,41 +969,6 @@ $(document).ready(function () {
 
     $statusLine = $("#status-line");
 
-    // $("body").keydown(function (e) {
-    //     var keyCode = e.keyCode || e.which;
-    //     if (keyCode == 120) { // F9
-    //         e.preventDefault();
-    //         run();
-    //     } else if (keyCode == 119) { // F8
-    //         e.preventDefault();
-    //         var url = prompt("Enter URL of Judge0 API:", apiUrl);
-    //         if (url != null) {
-    //             url = url.trim();
-    //         }
-    //         if (url != null && url != "") {
-    //             apiUrl = url;
-    //             localStorageSetItem("api-url", apiUrl);
-    //             showApiUrl();
-    //         }
-    //     } else if (keyCode == 118) { // F7
-    //         e.preventDefault();
-    //         wait = !wait;
-    //         localStorageSetItem("wait", wait);
-    //         alert(`Submission wait is ${wait ? "ON. Enjoy" : "OFF"}.`);
-    //     } else if (event.ctrlKey && keyCode == 83) { // Ctrl+S
-    //         e.preventDefault();
-    //         save();
-    //     } else if (event.ctrlKey && keyCode == 107) { // Ctrl++
-    //         e.preventDefault();
-    //         fontSize += 1;
-    //         editorsUpdateFontSize(fontSize);
-    //     } else if (event.ctrlKey && keyCode == 109) { // Ctrl+-
-    //         e.preventDefault();
-    //         fontSize -= 1;
-    //         editorsUpdateFontSize(fontSize);
-    //     }
-    // });
-
     $("select.dropdown").dropdown();
     $(".ui.dropdown").dropdown();
     $(".ui.dropdown.site-links").dropdown({action: "hide", on: "hover"});
@@ -1131,13 +979,10 @@ $(document).ready(function () {
 
     showApiUrl();
 
-    // require(["vs/editor/editor.main", "monaco-vim", "monaco-emacs"], function (ignorable, MVim, MEmacs) {
+    // TODO 升级monaco editor至0.20.0
     require.config({ paths: { 'vs': 'js/monaco-editor/min/vs' }});
     require(["vs/editor/editor.main"], function () {
         layout = new GoldenLayout(layoutConfig, $("#site-content"));
-
-        // MonacoVim = MVim;
-        // MonacoEmacs = MEmacs;
 
         layout.registerComponent("source", function (container, state) {
             sourceEditor = monaco.editor.create(container.getElement()[0], {
@@ -1152,8 +997,6 @@ $(document).ready(function () {
                 },
                 rulers: [80, 120]
             });
-
-            // changeEditorMode();
 
             sourceEditor.getModel().onDidChangeContent(function (e) {
                 currentLanguageId = parseInt($selectLanguage.val());
@@ -1185,7 +1028,6 @@ $(document).ready(function () {
             $md = window.markdownit();
         });
         // END
-
 
         layout.registerComponent("stdin", function (container, state) {
             stdinEditor = monaco.editor.create(container.getElement()[0], {
@@ -1286,14 +1128,11 @@ $(document).ready(function () {
         });
 
         layout.on("initialised", function () {
+
             $(".monaco-editor")[0].appendChild($("#editor-status-line")[0]);
-            if (getIdFromURI()) {
-                loadSavedSource();
-            } else {
-                loadRandomLanguage();
-            }
             $("#site-navigation").css("border-bottom", "1px solid black");
             sourceEditor.focus();
+
         });
 
         layout.init();

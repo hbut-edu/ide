@@ -77,8 +77,9 @@
         <!-- TODO 添加显示用户名的文本框 -->
         <div id="username-label-panel" class="item no-padding borderless">
             <div class="ui labeled button">
-                <div class="ui button">
-                    NO
+                <div id="username-edit-btn" class="ui button">
+                    <i class="edit icon"></i>
+                    USERNAME
                 </div>
                 <a id="username-label" class="ui basic label">
                     USERNAME
@@ -89,7 +90,7 @@
 
         <!-- TODO 添加程序选择下拉列表 -->
         <div id="program-menu-panel" class="item borderless">
-            <div class="ui fluid selection dropdown" style="width:480px !important;">
+            <div class="ui fluid selection dropdown" style="width:450px !important;">
                 <input type="hidden" id="selected-program-key-input">
                 <i class="dropdown icon"></i>
                 <div id="program-header" class="default text">算法分析与设计</div>
@@ -99,18 +100,6 @@
         </div>
         <!-- END -->
 
-        <div class="ui dropdown item site-links on-hover">
-            File <i class="dropdown icon"></i>
-            <div class="menu">
-                <!--                    <a class="item" target="_blank" href="/"><i class="file code icon"></i> New File</a>-->
-                <!--                    <div class="item" onclick="save()"><i class="save icon"></i> Save (Ctrl + S)</div>-->
-                <div class="item" onclick="downloadSource()"><i class="download icon"></i> Download</div>
-                <!-- <div class="item"><i class="share icon"></i> Share</div> -->
-                <div id="insert-template-btn" class="item"><i class="file code outline icon"></i> Insert template
-                    for current language
-                </div>
-            </div>
-        </div>
         <!--            <div class="link item" onclick="$('#site-settings').modal('show')" style="display:none;"><i class="cog icon"></i> Settings</div>-->
         <div class="item borderless">
             <select id="select-language" class="ui dropdown">
@@ -151,41 +140,37 @@
             </select>
         </div>
 
-        <div class="item no-left-padding borderless" style="width: 100px">
-            <div class="ui input">
-                <input id="compiler-options" type="text" placeholder="Compiler options"/>
+        <div class="ui dropdown item site-links on-hover">
+            Options <i class="dropdown icon"></i>
+
+            <div class="menu">
+
+                <!-- <a class="item" target="_blank" href="/"><i class="file code icon"></i> New File</a> -->
+                <!-- <div class="item" onclick="save()"><i class="save icon"></i> Save (Ctrl + S)</div> -->
+
+                <div class="item" onclick="downloadSource()"><i class="download icon"></i>
+                    Download source to local computer
+                </div>
+
+                <!-- <div class="item"><i class="share icon"></i> Share</div> -->
+
+                <div id="insert-template-btn" class="item"><i class="file code outline icon"></i>
+                    Insert template for current language
+                </div>
+
+                <div class="ui left icon input">
+                    <i class="server icon"></i>
+                    <input id="compiler-options" type="text" placeholder="Compiler options"/>
+                </div>
+
+                <div class="ui left icon input">
+                    <i class="server icon"></i>
+                    <input id="command-line-arguments" type="text" placeholder="Command line arguments"/>
+                </div>
+
             </div>
-        </div>
 
-        <div class="item no-left-padding borderless" style="width: 100px">
-            <div class="ui input">
-                <input id="command-line-arguments" type="text" placeholder="Command line arguments"/>
-            </div>
         </div>
-
-        <!-- TODO 添加提交与发布按钮 -->
-        <div id="submit-btn-panel" class="item no-left-padding borderless">
-            <button id="submit-btn" class="ui primary green labeled icon button"><i class="upload icon"></i>
-                SUBMIT
-            </button>
-        </div>
-
-        <div id="publish-btn-panel" class="item no-left-padding borderless">
-            <button id="publish-btn" class="ui primary red labeled icon button"><i class="upload icon"></i>
-                PUBLISH
-            </button>
-        </div>
-        <!-- END -->
-
-        <div class="item no-left-padding borderless">
-            <button id="run-btn" class="ui primary labeled icon button"><i class="play icon"></i>RUN</button>
-        </div>
-
-        <!-- TODO 在菜单上添加状态文本框 -->
-        <div class="item no-left-padding borderless">
-            <a id="menu-status"></a>
-        </div>
-        <!-- END -->
 
     </div>
 
@@ -193,7 +178,7 @@
 
 <div id="site-content"></div>
 
-<div id="site-modal" class="ui modal">
+<div id="site-modal" style="z-index: 9999;" class="ui modal">
     <div class="header">
         <i class="close icon"></i>
         <span id="title"></span>
@@ -208,7 +193,7 @@
 </div>
 
 <!-- TODO 添加模态登陆窗口 -->
-<div id="login-modal" class="ui modal">
+<div id="login-modal" style="z-index: 9999;" class="ui modal">
     <div class="header" align="center">
         <img src="./images/hbut_icon.png" height="100"/>
         <h1 style="margin: 10px">Hubei University of Technology Online Coding Trainer</h1>
@@ -244,46 +229,122 @@
 </div>
 <!-- END -->
 
-<div id="site-settings" class="ui modal">
-    <i class="close icon"></i>
-    <div class="header">
-        <i class="cog icon"></i>
-        Settings
+<!-- TODO 添加模态用户资料窗口 -->
+<div id="user-profile-modal" style="z-index: 9999;" class="ui modal">
+    <div class="header" align="center">
+        <h1 style="margin: 10px">User Profile</h1>
     </div>
-    <div class="content">
-        <div class="ui form">
-            <div class="inline fields">
-                <label>Editor Mode</label>
-                <div class="field">
-                    <div class="ui radio checkbox">
-                        <input type="radio" name="editor-mode" value="normal" checked="checked">
-                        <label>Normal</label>
-                    </div>
+    <div class="ui grid" style="margin: 10px;">
+        <div class="eight wide column">
+            <div class="ui labeled input">
+                <div class="ui label">
+                    Username
                 </div>
-                <div class="field">
-                    <div class="ui radio checkbox">
-                        <input type="radio" name="editor-mode" value="vim">
-                        <label>Vim</label>
-                    </div>
+                <input id="user-profile-username" type="text" disabled placeholder="username"/>
+            </div>
+        </div>
+        <div class="eight wide column">
+            <div class="ui labeled input">
+                <div class="ui label">
+                    Password
                 </div>
-                <div class="field">
-                    <div class="ui radio checkbox">
-                        <input type="radio" name="editor-mode" value="emacs">
-                        <label>Emacs</label>
-                    </div>
+                <input id="user-profile-password" type="password" placeholder="password"/>
+            </div>
+        </div>
+        <div class="eight wide column">
+            <div class="ui labeled input">
+                <div class="ui label">
+                    Student No
+                </div>
+                <input id="user-profile-student-no" type="text" placeholder="student no"/>
+            </div>
+        </div>
+        <div class="eight wide column">
+            <div id="select-user-profile-class-no" class="ui selection dropdown">
+                <input type="hidden" id="user-profile-class-no">
+                <i class="dropdown icon"></i>
+                <span class="text">Class</span>
+                <div class="menu">
+                    <div class="item" data-value="2018BIGDATA03">2018级大数据3班</div>
+                </div>
+            </div>
+        </div>
+        <div class="eight wide column">
+            <div class="ui labeled input">
+                <div class="ui label">
+                    Name
+                </div>
+                <input id="user-profile-realname" type="text" placeholder="name"/>
+            </div>
+        </div>
+        <div class="eight wide column">
+            <div id="select-user-profile-gender" class="ui selection dropdown">
+                <input type="hidden" id="user-profile-gender">
+                <i class="dropdown icon"></i>
+                <span class="text">Gender</span>
+                <div class="menu">
+                    <div class="item" data-value="1">Male</div>
+                    <div class="item" data-value="0">Female</div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="actions">
+        <button id="user-profile-save-btn" class="ui labeled icon primary button">
+            <i class="save icon"></i>
+            SAVE
+        </button>
+        <button id="user-profile-close-btn" class="ui labeled icon button">
+            <i class="window close icon"></i>
+            CLOSE
+        </button>
+    </div>
+</div>
+<!-- END -->
+
+<div id="site-controller">
+
+    <!-- TODO 添加提交与发布按钮 -->
+    <div id="submit-btn-panel" class="item no-left-padding borderless">
+        <button id="submit-btn" class="ui primary green labeled icon button"><i class="upload icon"></i>
+            SUBMIT
+        </button>
+    </div>
+
+    <div id="publish-btn-panel" class="item no-left-padding borderless">
+        <button id="publish-btn" class="ui primary red labeled icon button"><i class="upload icon"></i>
+            PUBLISH
+        </button>
+    </div>
+    <!-- END -->
+
+    <div class="item no-left-padding borderless">
+        <button id="run-btn" class="ui primary labeled icon button"><i class="play icon"></i>RUN</button>
+    </div>
+
 </div>
 
 <div id="site-footer">
+
+    <!-- TODO 在菜单上添加状态文本框 -->
+    <span id="submit-or-publish-status"></span>
+    <!-- END -->
+
     <div id="editor-status-line"></div>
-    <span>Powered by <a href="https://microsoft.github.io/monaco-editor/">Microsoft Monaco Editor</a>
-            and
-            <a href="https://judge0.com/">Judge0</a>. Developed by <a href=mailto:liujinhang@hbut.edu.cn>LIUJINHANG@HBUT.EDU.CN</a>.</span>
+
+    <span>
+        Powered by
+        <a href="https://microsoft.github.io/monaco-editor/">Microsoft Monaco Editor</a>
+        and
+        <a href="https://judge0.com/">Judge0</a>.
+        Developed by
+        <a href=mailto:liujinhang@hbut.edu.cn>LIUJINHANG@HBUT.EDU.CN</a>.
+    </span>
+
     <span id="status-line"></span>
+
 </div>
+
 </body>
 
 </html>

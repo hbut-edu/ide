@@ -1,6 +1,9 @@
 // TODO 修改代码运行服务器地址，添加附加功能的web服务地址
-let defaultUrl = localStorageGetItem("api-url") || "http://119.3.159.221:3000";
-let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://119.3.159.221";
+// let defaultUrl = localStorageGetItem("api-url") || "http://119.3.159.221:3000";
+// let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://119.3.159.221";
+
+let defaultUrl = localStorageGetItem("api-url") || "http://192.168.10.5:3000";
+let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://192.168.10.5:4321";
 // END
 
 let apiUrl = defaultUrl;
@@ -40,6 +43,8 @@ let $loginBtn;
 let $registerBtn;
 let $menuLoginBtn;
 let $cancelBtn;
+
+let $usernameEditBtn;
 
 // TODO 下拉列表的三个联动组件
 let $selectedProgramKeyInput;
@@ -231,6 +236,11 @@ function showLoginModal() {
 // TODO 隐藏登陆模态窗口
 function hideLoginModal() {
     $("#login-modal").modal("hide");
+}
+
+// TODO 隐藏登陆模态窗口
+function showUserProfileModal() {
+    $("#user-profile-modal").modal("show");
 }
 
 // TODO 生成program key
@@ -600,8 +610,8 @@ function submitOrPublish() {
                 if (i === 0) {
                     $submitBtn.removeClass("loading");
                     $publishBtn.removeClass("loading");
-                    let menuStatusHtml = data.message + " " + new Date().Format("yyyy-MM-dd HH:mm:ss");
-                    $("#menu-status").html(menuStatusHtml);
+                    $("#submit-or-publish-status").html(
+                        data.message + " " + new Date().Format("yyyy-MM-dd HH:mm:ss"));
                     clearInterval(time);
 
                     // 只有学生模式下需要重建程序下拉列表
@@ -648,9 +658,9 @@ function localStorageGetItem(key) {
     }
 }
 
-function showApiUrl() {
-    $("#api-url").attr("href", apiUrl);
-}
+// function showApiUrl() {
+//     $("#api-url").attr("href", apiUrl);
+// }
 
 function showError(title, content) {
     $("#site-modal #title").html(title);
@@ -805,8 +815,8 @@ function changeEditorLanguage() {
 
     // 设置文件名
     $(".lm_title")[0].innerText = fileNames[currentLanguageId];
-    apiUrl = resolveApiUrl($selectLanguage.val());
-    showApiUrl();
+    // apiUrl = resolveApiUrl($selectLanguage.val());
+    // showApiUrl();
 }
 
 function insertTemplate() {
@@ -838,10 +848,10 @@ function resolveLanguageId(id) {
     return languageIdTable[id] || id;
 }
 
-function resolveApiUrl(id) {
-    id = parseInt(id);
-    return languageApiUrlTable[id] || defaultUrl;
-}
+// function resolveApiUrl(id) {
+//     id = parseInt(id);
+//     return languageApiUrlTable[id] || defaultUrl;
+// }
 
 function editorsUpdateFontSize(fontSize) {
     sourceEditor.updateOptions({fontSize: fontSize});
@@ -913,6 +923,20 @@ $(document).ready(function () {
         hideLoginModal();
     });
 
+    // TODO 用户名点击事件（弹出框）
+    $usernameEditBtn = $("#username-edit-btn");
+    $usernameEditBtn.click(function (e) {
+
+        $("#user-profile-username").val($userProfile.username);
+        $("#user-profile-password").val($userProfile.password);
+        $("#user-profile-student-no").val($userProfile.student_no);
+        $("#select-user-profile-class-no").dropdown("set selected", "2018BIGDATA03");
+        $("#user-profile-realname").val($userProfile.realname);
+        $("#select-user-profile-gender").dropdown("set selected", "1");
+
+        showUserProfileModal();
+    });
+
     // TODO 语言切换事件
     $selectLanguage = $("#select-language");
     $selectLanguage.change(function (e) {
@@ -977,7 +1001,7 @@ $(document).ready(function () {
         $(this).closest(".message").transition("fade");
     });
 
-    showApiUrl();
+    // showApiUrl();
 
     // TODO 升级monaco editor至0.20.0
     require.config({ paths: { 'vs': 'js/monaco-editor/min/vs' }});
@@ -1384,7 +1408,7 @@ const languageIdTable = {
     1001: 1
 }
 
-const languageApiUrlTable = {
-    1000: "https://nim.api.judge0.com",
-    1001: "https://vlang.api.judge0.com"
-}
+// const languageApiUrlTable = {
+//     1000: "https://nim.api.judge0.com",
+//     1001: "https://vlang.api.judge0.com"
+// }

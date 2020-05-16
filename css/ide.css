@@ -112,7 +112,23 @@ body {
     color: #db2828;
 }
 
-#site-footer, #status-line, #donate-line {
+/* TODO 控制器样式 */
+#site-controller {
+    text-align: left;
+    height: 42px;
+    position: absolute;
+    background: transparent;
+    z-index: 999;
+    left:10px;
+    bottom: 23px;
+}
+
+#site-controller div {
+    display: inline-block;
+}
+/* END */
+
+#site-footer, #status-line, #donate-line， #submit-or-publish-status {
     background-color: #0E6EB8;
     bottom: 0;
     font-family: "Droid Sans Mono", monospace, monospace, "Droid Sans Fallback";
@@ -145,6 +161,16 @@ body {
     text-align: left;
     width: fit-content;
 }
+
+/* TODO 提交与发布状态栏样式 */
+#submit-or-publish-status {
+    color: #fff;
+    float: left;
+    right: 0;
+    text-align: left;
+    width: fit-content;
+}
+/* END */
 
 #status-line {
     color: #fff;

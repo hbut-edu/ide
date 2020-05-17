@@ -1,9 +1,11 @@
 // TODO 修改代码运行服务器地址，添加附加功能的web服务地址
-// let defaultUrl = localStorageGetItem("api-url") || "http://119.3.159.221:3000";
-// let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://119.3.159.221";
+// release
+let defaultUrl = localStorageGetItem("api-url") || "http://119.3.159.221:3000";
+let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://119.3.159.221";
 
-let defaultUrl = localStorageGetItem("api-url") || "http://192.168.10.5:3000";
-let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://192.168.10.5:4321";
+// development
+// let defaultUrl = localStorageGetItem("api-url") || "http://192.168.10.5:3000";
+// let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://192.168.10.5:4321";
 // END
 
 let apiUrl = defaultUrl;
@@ -44,7 +46,18 @@ let $registerBtn;
 let $menuLoginBtn;
 let $cancelBtn;
 
-let $usernameEditBtn;
+// TODO 用户资料界面组件
+let $userProfileUsername;
+let $userProfilePassword;
+let $userProfileStudentNo;
+let $selectUserProfileClassNo;
+let $userProfileClassNo;
+let $userProfileRealname;
+let $selectUserProfileGender;
+let $userProfileGender;
+let $userProfileEditBtn;
+let $userProfileSaveBtn;
+let $userProfileCloseBtn;
 
 // TODO 下拉列表的三个联动组件
 let $selectedProgramKeyInput;
@@ -238,9 +251,14 @@ function hideLoginModal() {
     $("#login-modal").modal("hide");
 }
 
-// TODO 隐藏登陆模态窗口
+// TODO 显示用户资料模态窗口
 function showUserProfileModal() {
     $("#user-profile-modal").modal("show");
+}
+
+// TODO 隐藏用户资料模态窗口
+function hideUserProfileModal() {
+    $("#user-profile-modal").modal("hide");
 }
 
 // TODO 生成program key
@@ -291,8 +309,25 @@ function packageUIToData() {
     return $program;
 }
 
+// TODO 将界面上的数据打包到PROGRAM里面
+function packageUserProfileUIToData() {
+
+    if (isLogicEmptyObject($userProfile)) {
+        $userProfile = {};
+    }
+
+    $userProfile["username"] = encode($userProfileUsername.val());
+    $userProfile["password"] = encode($userProfilePassword.val());
+    $userProfile["student_no"] = $userProfileStudentNo.val();
+    $userProfile["class_no"] = $userProfileClassNo.val();
+    $userProfile["realname"] = encode($userProfileRealname.val());
+    $userProfile["gender"] = parseInt($userProfileGender.val());
+
+    return $userProfile;
+}
+
 // TODO 将PROGRAM中的数值反映到界面上
-function applyDataToUI(isDrivenSelectLanguage) {
+function applyDataToUI(isDriveSelectLanguage) {
 
     stdoutEditor.setValue("");
     stderrEditor.setValue("");
@@ -310,10 +345,34 @@ function applyDataToUI(isDrivenSelectLanguage) {
     $compilerOptions.val($program.compiler_options);
     $commandLineArguments.val($program.command_line_arguments);
 
-    if (isDrivenSelectLanguage)
+    if (isDriveSelectLanguage)
         $selectLanguage.dropdown("set selected", $program.language_id);
 
     changeEditorLanguage();
+}
+
+// TODO 将USERPROFILE中的数值反映到用户资料界面上
+function applyDataToUserProfileUI(){
+
+    if(!isLogicEmptyObject($userProfile)) {
+
+        $userProfileUsername = $("#user-profile-username");
+        $userProfilePassword = $("#user-profile-password");
+        $userProfileStudentNo = $("#user-profile-student-no");
+        $selectUserProfileClassNo = $("#select-user-profile-class-no");
+        $userProfileClassNo = $("#user-profile-class-no");
+        $userProfileRealname = $("#user-profile-realname");
+        $selectUserProfileGender = $("#select-user-profile-gender");
+        $userProfileGender = $("#user-profile-gender");
+
+        $userProfileUsername.val(decode($userProfile.username));
+        $userProfilePassword.val(decode($userProfile.password));
+        $userProfileStudentNo.val($userProfile.student_no);
+        $selectUserProfileClassNo.dropdown("set selected", $userProfile.class_no);
+        $userProfileRealname.val(decode($userProfile.realname));
+        $selectUserProfileGender.dropdown("set selected", $userProfile.gender);
+    }
+
 }
 
 // TODO 新建一个PROGRAM
@@ -550,7 +609,7 @@ function makeProgramMenuItem() {
 }
 
 // TODO 提交与发布的按钮逻辑
-function submitOrPublish() {
+function doSubmitOrPublish() {
 
     if (isLogicEmptyObject($userProfile)) {
         showError("Error", "Please login first.");
@@ -628,6 +687,41 @@ function submitOrPublish() {
         error: handleRunError
     });
 }
+
+// TODO 保存用户资料的逻辑
+function doSaveUserProfile(){
+
+    $.ajax({
+        url: dataindustryUrl + "/user_profile",
+        type: "PUT",
+        headers: {"Accept": "application/json"},
+        dataType: 'json',
+        data: JSON.stringify($userProfile),
+        async: true,
+        contentType: "application/json",
+        success: function (data, textStatus, jqXHR) {
+
+            $.ajax({
+                url: dataindustryUrl + "/user_profile/" +
+                    $userProfile.username + "/" +
+                    $userProfile.password,
+                type: "GET",
+                headers: {"Accept": "application/json"},
+                dataType: 'json',
+                success: function (data, textStatus, jqXHR) {
+
+                    $userProfile = data;
+                    hideUserProfileModal();
+
+                },
+                error: handleRunError
+            });
+
+        },
+        error: handleRunError
+    });
+
+}
 // END
 
 function encode(str) {
@@ -657,10 +751,6 @@ function localStorageGetItem(key) {
         return null;
     }
 }
-
-// function showApiUrl() {
-//     $("#api-url").attr("href", apiUrl);
-// }
 
 function showError(title, content) {
     $("#site-modal #title").html(title);
@@ -848,11 +938,6 @@ function resolveLanguageId(id) {
     return languageIdTable[id] || id;
 }
 
-// function resolveApiUrl(id) {
-//     id = parseInt(id);
-//     return languageApiUrlTable[id] || defaultUrl;
-// }
-
 function editorsUpdateFontSize(fontSize) {
     sourceEditor.updateOptions({fontSize: fontSize});
     stdinEditor.updateOptions({fontSize: fontSize});
@@ -888,14 +973,14 @@ $(document).ready(function () {
     // TODO 提交按钮事件
     $submitBtn = $("#submit-btn");
     $submitBtn.click(function (e) {
-        submitOrPublish();
+        doSubmitOrPublish();
     });
     $('#submit-btn-panel').hide();
 
     // TODO 发布按钮事件
     $publishBtn = $("#publish-btn");
     $publishBtn.click(function (e) {
-        submitOrPublish();
+        doSubmitOrPublish();
     });
     $('#publish-btn-panel').hide();
 
@@ -923,18 +1008,28 @@ $(document).ready(function () {
         hideLoginModal();
     });
 
-    // TODO 用户名点击事件（弹出框）
-    $usernameEditBtn = $("#username-edit-btn");
-    $usernameEditBtn.click(function (e) {
+    // TODO 用户资料编辑按钮点击事件（弹出框）
+    $userProfileEditBtn = $("#user-profile-edit-btn");
+    $userProfileEditBtn.click(function (e) {
 
-        $("#user-profile-username").val($userProfile.username);
-        $("#user-profile-password").val($userProfile.password);
-        $("#user-profile-student-no").val($userProfile.student_no);
-        $("#select-user-profile-class-no").dropdown("set selected", "2018BIGDATA03");
-        $("#user-profile-realname").val($userProfile.realname);
-        $("#select-user-profile-gender").dropdown("set selected", "1");
-
+        applyDataToUserProfileUI();
         showUserProfileModal();
+
+    });
+
+    $userProfileSaveBtn = $("#user-profile-save-btn");
+    $userProfileSaveBtn.click(function (e) {
+
+        packageUserProfileUIToData();
+        doSaveUserProfile();
+
+    });
+
+    $userProfileCloseBtn = $("#user-profile-close-btn");
+    $userProfileCloseBtn.click(function (e) {
+
+        hideUserProfileModal();
+
     });
 
     // TODO 语言切换事件

@@ -1,11 +1,11 @@
 // TODO 修改代码运行服务器地址，添加附加功能的web服务地址
 // release
 let defaultUrl = localStorageGetItem("api-url") || "http://119.3.159.221:3000";
-let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://119.3.159.221";
+// let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://119.3.159.221";
 
 // development
-// let defaultUrl = localStorageGetItem("api-url") || "http://192.168.10.5:3000";
-// let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://192.168.10.5:4321";
+// let defaultUrl = localStorageGetItem("api-url") || "http://192.168.1.5:3000";
+let dataindustryUrl = localStorageGetItem("dataindustry-api-url") || "http://192.168.1.5:4321";
 // END
 
 let apiUrl = defaultUrl;
@@ -59,6 +59,11 @@ let $userProfileEditBtn;
 let $userProfileSaveBtn;
 let $userProfileCloseBtn;
 
+// TODO 教师面板
+let $scoreInput;
+let $submitScoreBtn;
+let $evaluationPopupBtn;
+
 // TODO 下拉列表的三个联动组件
 let $selectedProgramKeyInput;
 let $programMenu;
@@ -74,6 +79,9 @@ let $programs;
 
 let $selectedProgramKey;
 let $prevLanguageId;
+
+let $execute_time;
+let $memory_cost;
 
 // TODO Markdown-it变量
 let $md;
@@ -309,7 +317,7 @@ function packageUIToData() {
     return $program;
 }
 
-// TODO 将界面上的数据打包到PROGRAM里面
+// TODO 将用户资料界面上的数据打包到USERPROFILE里面
 function packageUserProfileUIToData() {
 
     if (isLogicEmptyObject($userProfile)) {
@@ -393,6 +401,124 @@ function createNewProgram() {
     return newProgram;
 }
 
+function drawChart(chartId, data, scoreIndex) {
+
+    let pointsInInterval = 5;
+    let labels = ['4σ', '3σ', '2σ', 'σ', 'μ', 'σ', '2σ', '3σ', '4σ'];
+
+    Highcharts.chart(chartId, {
+        chart: {
+            margin: [10, 10, 20, 10],
+            events: {
+                load: function () {
+                    Highcharts.each(this.series[0].data, function (point, i) {
+
+                        if (i % pointsInInterval === 0) {
+                            point.update({
+                                color: 'black',
+                                dataLabels: {
+                                    enabled: true,
+                                    format: labels[Math.floor(i / pointsInInterval)],
+                                    style: {
+                                        fontSize: '14px'
+                                    }
+                                }
+                            });
+                        } else if (i === scoreIndex) {
+                            point.update({
+                                color: 'red',
+                                dataLabels: {
+                                    enabled: true,
+                                    format: "your score",
+                                    style: {
+                                        fontSize: '24px'
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        },
+
+        title: {
+            text: null
+        },
+
+        legend: {
+            enabled: false
+        },
+
+        xAxis: [{
+            title: {
+                text: 'Data'
+            },
+            visible: false
+        }, {
+            title: {
+                text: 'Bell curve'
+            },
+            opposite: true,
+            visible: false
+        }],
+
+        yAxis: [{
+            title: {
+                text: 'Data'
+            },
+            visible: false
+        }, {
+            title: {
+                text: 'Bell curve'
+            },
+            opposite: true,
+            visible: false
+        }],
+
+        series: [{
+            name: 'Bell curve',
+            type: 'bellcurve',
+            xAxis: 1,
+            yAxis: 1,
+            baseSeries: 1,
+            pointsInInterval: pointsInInterval,
+            marker: {
+                enabled: true,
+            }
+        }, {
+            name: 'Data',
+            type: 'scatter',
+            data: data,
+            visible: false,
+            marker: {
+                radius: 1.5
+            }
+        }]
+    });
+}
+
+function getEvaluation() {
+
+    $.ajax({
+        // url: dataindustryUrl + "/evaluation/" + decodeProgramKey($selectedProgramKeyInput.val()),
+        url: dataindustryUrl + "/evaluation/" + "10000",
+        type: "GET",
+        headers: {"Accept": "application/json"},
+        dataType: 'json',
+        success: function (data, textStatus, jqXHR) {
+
+            let referenceData = data["reference_data"];
+
+            drawChart('score-chart', referenceData, 22);
+            drawChart('execute-time-chart', referenceData, 23);
+            drawChart('memory-cost-chart', referenceData, 24);
+
+        },
+        error: handleRunError
+    });
+
+}
+
 // TODO 登陆逻辑
 function doLogin() {
 
@@ -422,11 +548,13 @@ function doLogin() {
             $("#menu-login-btn-panel").hide();
             $("#username-label-panel").show();
             $("#program-menu-panel").show();
+            $("#evaluation-controller").show();
 
             if ($userProfile.user_type === 0) {
 
                 $("#submit-btn-panel").show();
                 $("#publish-btn-panel").hide();
+
                 // TODO 根据用户类型显示或隐藏markdown编辑器
 
             } else if ($userProfile.user_type === 1) {
@@ -649,8 +777,6 @@ function doSubmitOrPublish() {
 
     } else if ($userProfile.user_type === 1) {
 
-        //
-
         ajax_call_url = dataindustryUrl + "/program_template";
     }
 
@@ -722,6 +848,40 @@ function doSaveUserProfile(){
     });
 
 }
+
+// TODO 评分逻辑
+function doScoring() {
+    if(isLogicEmptyString($scoreInput.val())){
+        showError("Error","input score first.")
+        return;
+    }
+
+    let scoreData = {};
+
+    scoreData["score"] = $scoreInput.val();
+    scoreData["execute_time"] = $execute_time;
+    scoreData["memory_cost"] = $memory_cost;
+
+    $.ajax({
+        url: dataindustryUrl + "/program/score/" + decodeProgramKey($selectedProgramKeyInput.val())[0],
+        type: "POST",
+        async: true,
+        headers: {"Accept": "application/json"},
+        contentType: "application/json",
+        dataType: 'json',
+        data: JSON.stringify(scoreData),
+        success: function (data, textStatus, jqXHR) {
+
+
+
+        },
+        error: handleRunError
+    });
+
+    alert($scoreInput.val());
+
+
+}
 // END
 
 function encode(str) {
@@ -776,10 +936,14 @@ function handleResult(data) {
     let stderr = decode(data.stderr);
     let compile_output = decode(data.compile_output);
     let sandbox_message = decode(data.message);
-    let time = (data.time === null ? "-" : data.time + "s");
-    let memory = (data.memory === null ? "-" : data.memory + "KB");
 
-    $statusLine.html(`${status.description}, ${time}, ${memory}`);
+    $execute_time = (data.time === null ? 0 : data.time);
+    $memory_cost = (data.memory === null ? 0 : data.memory);
+
+    $("#execute-time-input").val($execute_time);
+    $("#memory-cost-input").val($memory_cost);
+
+    $statusLine.html(`${status.description}, ${$execute_time + "s"}, ${$memory_cost + "KB"}`);
 
     if (blinkStatusLine) {
         $statusLine.addClass("blink");
@@ -1032,6 +1196,19 @@ $(document).ready(function () {
 
     });
 
+    // TODO 提交分数按钮点击事件
+    $submitScoreBtn = $("#submit-score-btn");
+    $scoreInput = $("#score-input");
+    $submitScoreBtn.click(function (e) {
+        doScoring();
+    });
+
+    $evaluationPopupBtn = $("#evaluation-popup-btn");
+    $evaluationPopupBtn.click(function (e) {
+        getEvaluation();
+    });
+    $("#evaluation-controller").hide();
+
     // TODO 语言切换事件
     $selectLanguage = $("#select-language");
     $selectLanguage.change(function (e) {
@@ -1255,6 +1432,15 @@ $(document).ready(function () {
         });
 
         layout.init();
+
+        // TODO 评价面板按钮弹出事件
+        $("#evaluation-popup-btn")
+            .popup({
+                on: 'click',
+                inline     : true,
+                hideOnScroll: false,
+            });
+        // END
 
     });
 

@@ -123,6 +123,16 @@ body {
     bottom: 23px;
 }
 
+#evaluation-controller {
+    text-align: left;
+    height: 42px;
+    position: absolute;
+    background: transparent;
+    z-index: 999;
+    left:10px;
+    bottom: 70px;
+}
+
 #site-controller div {
     display: inline-block;
 }

@@ -500,18 +500,18 @@ function drawChart(chartId, data, scoreIndex) {
 function getEvaluation() {
 
     $.ajax({
-        // url: dataindustryUrl + "/evaluation/" + decodeProgramKey($selectedProgramKeyInput.val()),
-        url: dataindustryUrl + "/evaluation/" + "10000",
+        url: dataindustryUrl + "/evaluation/" + decodeProgramKey($selectedProgramKeyInput.val()),
+        // url: dataindustryUrl + "/evaluation/" + "10000",
         type: "GET",
         headers: {"Accept": "application/json"},
         dataType: 'json',
         success: function (data, textStatus, jqXHR) {
 
-            let referenceData = data["reference_data"];
+            let referenceCurveData = data["reference_curve_data"];
 
-            drawChart('score-chart', referenceData, 22);
-            drawChart('execute-time-chart', referenceData, 23);
-            drawChart('memory-cost-chart', referenceData, 24);
+            drawChart('score-chart', referenceCurveData, data["score"]);
+            drawChart('execute-time-chart', referenceCurveData, data["execute_time"]);
+            drawChart('memory-cost-chart', referenceCurveData, data["memory_cost"]);
 
         },
         error: handleRunError
@@ -1181,6 +1181,7 @@ $(document).ready(function () {
 
     });
 
+    //TODO 保存用户资料按钮点击事件
     $userProfileSaveBtn = $("#user-profile-save-btn");
     $userProfileSaveBtn.click(function (e) {
 
@@ -1189,6 +1190,7 @@ $(document).ready(function () {
 
     });
 
+    //TODO 关闭用户资料界面按钮点击事件
     $userProfileCloseBtn = $("#user-profile-close-btn");
     $userProfileCloseBtn.click(function (e) {
 
@@ -1196,18 +1198,18 @@ $(document).ready(function () {
 
     });
 
+    $evaluationPopupBtn = $("#evaluation-popup-btn");
+    $evaluationPopupBtn.click(function (e) {
+        getEvaluation();
+    });
+    $("#evaluation-controller").hide();
+
     // TODO 提交分数按钮点击事件
     $submitScoreBtn = $("#submit-score-btn");
     $scoreInput = $("#score-input");
     $submitScoreBtn.click(function (e) {
         doScoring();
     });
-
-    $evaluationPopupBtn = $("#evaluation-popup-btn");
-    $evaluationPopupBtn.click(function (e) {
-        getEvaluation();
-    });
-    $("#evaluation-controller").hide();
 
     // TODO 语言切换事件
     $selectLanguage = $("#select-language");
@@ -1688,8 +1690,3 @@ const languageIdTable = {
     1000: 1,
     1001: 1
 }
-
-// const languageApiUrlTable = {
-//     1000: "https://nim.api.judge0.com",
-//     1001: "https://vlang.api.judge0.com"
-// }
